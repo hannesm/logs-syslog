@@ -1,0 +1,17 @@
+description = "Emit logs via syslog"
+version = "%%VERSION_NUM%%"
+requires = "logs syslog-message"
+archive(byte) = "logs_syslog.cma"
+archive(native) = "logs_syslog.cmxa"
+plugin(byte) = "logs_syslog.cma"
+plugin(native) = "logs_syslog.cmxs"
+
+package "unix" (
+  description = "Unix syslog reporter"
+  version = "%%VERSION_NUM%%"
+  requires = "logs-syslog logs syslog-message ptime.clock.os"
+  archive(byte) = "logs_syslog_unix.cma"
+  archive(native) = "logs_syslog_unix.cmxa"
+  plugin(byte) = "logs_syslog_unix.cma"
+  plugin(native) = "logs_syslog_unix.cmxs"
+)

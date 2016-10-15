@@ -1,0 +1,27 @@
+opam-version: "1.2"
+maintainer: "Hannes Mehnert <hannes@mehnert.org>"
+authors: ["Hannes Mehnert <hannes@mehnert.org>"]
+homepage: "https://github.com/hannesm/syslog-logs"
+doc: "https://hannesm.github.io/syslog-logs/doc"
+dev-repo: "https://github.com/hannesm/syslog-logs.git"
+bug-reports: "https://github.com/hannesm/syslog-logs/issues"
+license: "ISC"
+available: [ ocaml-version >= "4.02.0"]
+
+depends: [
+  "ocamlfind" {build}
+  "ocamlbuild" {build}
+  "topkg" {build}
+  "logs"
+  "ptime"
+]
+
+build: [
+  [ "ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%" ]
+]
+
+build-test: [
+  [ "ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%" "--tests" "true" ]
+  [ "ocaml" "pkg/pkg.ml" "test" ]
+]
+
