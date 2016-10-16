@@ -1,1 +1,2 @@
-val unix_syslog_reporter : unit -> Logs.reporter
+
+val unix_syslog_reporter : string -> Logs_syslog.connection -> Logs.reporter

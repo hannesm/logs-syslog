@@ -20,3 +20,10 @@ let ppf, flush =
 let message ?(facility = Syslog_message.System_Daemons) ~host ~source level timestamp message =
   let message = source ^ ": " ^ message in
   { Syslog_message.facility ; severity = slevel level ; timestamp ; hostname = host ; message }
+
+(* TODO: v6, DTLS, maybe use conduit *)
+type connection = [
+  | `UDP of Ipaddr.V4.t * int
+  | `TCP of Ipaddr.V4.t * int
+  | `TLSoTCP of X509.t list * X509.private_key * X509.Authenticator.a * string * int
+]
