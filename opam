@@ -15,7 +15,6 @@ depends: [
   "logs"
   "ptime"
   "ipaddr"
-  "x509"
 ]
 
 build: [

@@ -31,15 +31,14 @@ let unix_syslog_reporter host = function
     let send msg = ignore(Unix.send s (Bytes.of_string msg) 0 (String.length msg) []) in
     syslog_report host send
     (* TODO: someone should call close at some point, but program exit does this for us as well ;) *)
-  | _ -> invalid_arg "NYI"
 
 (* example code *)
-(*
- let _ =
-  Logs.set_reporter (unix_syslog_reporter "OCaml" (`TCP (Ipaddr.V4.of_string_exn "127.0.0.1", 5514))) ;
-  (*  Logs.set_reporter (unix_syslog_reporter "OCaml" (`UDP (Ipaddr.V4.of_string_exn "127.0.0.1", 514))) ; *)
+(* let _ =
+  (* Logs.set_reporter (unix_syslog_reporter "OCaml" (`TCP (Ipaddr.V4.of_string_exn "127.0.0.1", 5514))) ; *)
+  Logs.set_reporter (unix_syslog_reporter "OCaml" (`UDP (Ipaddr.V4.of_string_exn "127.0.0.1", 514))) ;
   Logs.set_level ~all:true (Some Logs.Debug) ;
   Logs.warn (fun l -> l "foobar") ;
   Logs.err (fun l -> l "bar foofoobar") ;
-  Logs.info (fun l -> l "foofoobar")
+  Logs.info (fun l -> l "foofoobar") ;
+  Logs.debug (fun l -> l "debug foofoobar")
 *)

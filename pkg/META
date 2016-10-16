@@ -1,6 +1,6 @@
 description = "Emit logs via syslog"
 version = "%%VERSION_NUM%%"
-requires = "logs syslog-message x509 ipaddr"
+requires = "logs syslog-message"
 archive(byte) = "logs_syslog.cma"
 archive(native) = "logs_syslog.cmxa"
 plugin(byte) = "logs_syslog.cma"
