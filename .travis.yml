@@ -1,0 +1,10 @@
+language: c
+install: wget https://raw.githubusercontent.com/ocaml/ocaml-ci-scripts/master/.travis-opam.sh
+script: bash -ex .travis-opam.sh
+sudo: required
+env:
+  - PACKAGE="logs-syslog" OCAML_VERSION=4.02
+  - PACKAGE="logs-syslog" OCAML_VERSION=4.03
+  - PACKAGE="logs-syslog" OCAML_VERSION=4.0$
+notifications:
+  email: false
