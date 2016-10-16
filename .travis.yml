@@ -5,6 +5,6 @@ sudo: required
 env:
   - PACKAGE="logs-syslog" OCAML_VERSION=4.02
   - PACKAGE="logs-syslog" OCAML_VERSION=4.03
-  - PACKAGE="logs-syslog" OCAML_VERSION=4.04
+# once we have ipaddr working in 4.04  - PACKAGE="logs-syslog" OCAML_VERSION=4.04
 notifications:
   email: false
