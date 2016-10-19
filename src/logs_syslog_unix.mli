@@ -1,6 +1,6 @@
+open Result
 
-(* TODO: support v6 *)
-val unix_syslog_reporter :
-  string ->
-  [ `TCP of Ipaddr.V4.t * int | `UDP of Ipaddr.V4.t * int ] ->
-  Logs.reporter
+(* TODO: support IPv6 *)
+val udp_syslog_reporter : string -> Ipaddr.V4.t -> int -> Logs.reporter
+
+val tcp_syslog_reporter : string -> Ipaddr.V4.t -> int -> (Logs.reporter, string) result
