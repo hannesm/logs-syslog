@@ -54,6 +54,7 @@ let tcp_syslog_reporter host ip port =
                    e (Bytes.to_string msg)
   in
   match connect () with
+  | Error e -> Error e
   | Ok () ->
     let rec send msg = match !s with
       | None -> reconnect send msg
@@ -74,7 +75,6 @@ let tcp_syslog_reporter host ip port =
         aux 0
     in
     Ok (syslog_report host send)
-  | Error e -> Error e
 
 (* example code *)
 (* let _ =
