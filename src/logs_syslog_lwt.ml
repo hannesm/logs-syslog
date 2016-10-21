@@ -1,28 +1,15 @@
-open Logs_syslog
 open Lwt.Infix
 open Result
 
-let syslog_report host send =
-  let report src level ~over k msgf =
-    let source = Logs.Src.name src in
-    let timestamp = Ptime_clock.now () in
-    let k _ =
-      let msg = message ~host ~source level timestamp (flush ()) in
-      let unblock () = over () ; Lwt.return_unit in
-      Lwt.finalize (send (Syslog_message.to_string msg)) unblock |> Lwt.ignore_result ;
-      k ()
-    in
-    msgf @@ fun ?header:_h ?tags:_t fmt ->
-    Format.kfprintf k ppf fmt
-  in
-  { Logs.report }
+let syslog_report host =
+  Logs_syslog_lwt_common.syslog_report_common host Ptime_clock.now
 
 let sock ip port = Lwt_unix.ADDR_INET (Unix.inet_addr_of_string (Ipaddr.V4.to_string ip), port)
 
 let udp_reporter host ip port =
   let sa = sock ip port in
   let s = Lwt_unix.(socket PF_INET SOCK_DGRAM 0) in
-  let send msg () =
+  let send msg =
     Lwt.catch
       (fun () -> Lwt_unix.sendto s (Bytes.of_string msg) 0 (String.length msg) [] sa >|= fun _ -> ())
       (function Unix.Unix_error (e, f, _) ->
@@ -47,7 +34,7 @@ let tcp_reporter host ip port =
   in
   let reconnect k msg =
     connect () >>= function
-    | Ok () -> k msg ()
+    | Ok () -> k msg
     | Error e ->
       Printf.eprintf "%s while sending log message %s\n" e msg ;
       Lwt.return_unit
@@ -55,7 +42,7 @@ let tcp_reporter host ip port =
   connect () >>= function
   | Error e -> Lwt.return (Error e)
   | Ok () ->
-    let rec send omsg () = match !s with
+    let rec send omsg = match !s with
       | None -> reconnect send omsg
       | Some sock ->
         let msg = Bytes.of_string (omsg ^ "\n") in
@@ -103,7 +90,7 @@ let tcp_tls_reporter host ip port ~cacert ~cert ~priv_key =
   in
   let reconnect k msg =
     connect () >>= function
-    | Ok () -> k msg ()
+    | Ok () -> k msg
     | Error e ->
       Printf.eprintf "%s while sending log message %s\n" e msg ;
       Lwt.return_unit
@@ -111,7 +98,7 @@ let tcp_tls_reporter host ip port ~cacert ~cert ~priv_key =
   connect () >>= function
   | Error e -> Lwt.return (Error e)
   | Ok () ->
-    let rec send omsg () = match !tls with
+    let rec send omsg = match !tls with
       | None -> reconnect send omsg
       | Some t ->
         let msg = Cstruct.of_string (Printf.sprintf "%d %s" (String.length omsg) omsg) in

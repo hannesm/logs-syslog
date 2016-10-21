@@ -16,14 +16,16 @@ depends: [
   "ptime"
   "ipaddr"
   "syslog-message"
+  "result"
 ]
 
 depopts: [
-  "lwt" "x509" "tls"
+  "lwt" "x509" "tls" "mirage-types" "cstruct"
 ]
 
 build: [
   [ "ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%"
-    "--with-lwt" "%{lwt+x509+tls:installed}%" ]
+    "--with-lwt" "%{lwt+x509+tls:installed}%"
+    "--with-mirage" "%{mirage-types+lwt+x509+tls:installed}%" ]
 ]
 
