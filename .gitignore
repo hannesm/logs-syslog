@@ -2,3 +2,13 @@ _build/
 *.native
 *.byte
 *.install
+
+mir-*
+*.xl
+*.xl.in
+*.xe
+*_libvirt.xml
+Makefile
+key_gen.ml
+log
+main.ml
