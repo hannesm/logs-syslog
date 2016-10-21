@@ -1,4 +1,4 @@
-PKG logs syslog-message ptime ptime.clock.os ipaddr x509
+PKG logs syslog-message ptime ptime.clock.os ipaddr x509 lwt
 
 S src
 

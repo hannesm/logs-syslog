@@ -10,7 +10,8 @@ OCAMLBUILD=${OCAMLBUILD:="ocamlbuild -tag debug -classic-display \
 action ()
 {
     case $1 in
-        default) action lib ;;
+        default) action lib ; action lwt ;;
+        lwt) $OCAMLBUILD -I src logs-syslog-lwt.cma logs-syslog-lwt.cmxa  ;;
         lib) $OCAMLBUILD -I src logs-syslog.cma logs-syslog.cmxa logs-syslog-unix.cma logs-syslog-unix.cmxa ;;
         clean) $OCAMLBUILD -clean ;;
         *) $OCAMLBUILD $* ;;

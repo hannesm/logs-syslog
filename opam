@@ -18,7 +18,12 @@ depends: [
   "syslog-message"
 ]
 
+depopts: [
+  "lwt"
+]
+
 build: [
-  [ "ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%" ]
+  [ "ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%"
+    "--with-lwt" "%{lwt:installed}%" ]
 ]
 

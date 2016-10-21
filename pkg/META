@@ -5,6 +5,7 @@ archive(byte) = "logs_syslog.cma"
 archive(native) = "logs_syslog.cmxa"
 plugin(byte) = "logs_syslog.cma"
 plugin(native) = "logs_syslog.cmxs"
+exists_if = "logs_syslog.cma"
 
 package "unix" (
   description = "Unix syslog reporter"
@@ -14,4 +15,16 @@ package "unix" (
   archive(native) = "logs_syslog_unix.cmxa"
   plugin(byte) = "logs_syslog_unix.cma"
   plugin(native) = "logs_syslog_unix.cmxs"
+  exists_if = "logs_syslog_unix.cma"
+)
+
+package "lwt" (
+  description = "Lwt syslog reporter"
+  version = "%%VERSION_NUM%%"
+  requires = "logs-syslog logs syslog-message ptime.clock.os ipaddr lwt"
+  archive(byte) = "logs_syslog_lwt.cma"
+  archive(native) = "logs_syslog_lwt.cmxa"
+  plugin(byte) = "logs_syslog_lwt.cma"
+  plugin(native) = "logs_syslog_lwt.cmxs"
+  exists_if = "logs_syslog_lwt.cma"
 )
