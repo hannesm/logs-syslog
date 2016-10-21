@@ -4,4 +4,4 @@ true : package(result syslog-message logs ptime ipaddr)
 "src" : include
 
 <src/logs_syslog_unix.{ml,mli}>: package(ptime.clock.os)
-<src/logs_syslog_lwt.{ml,mli}>: package(ptime.clock.os lwt logs.lwt)
+<src/logs_syslog_lwt.{ml,mli}>: package(ptime.clock.os lwt logs.lwt x509 tls tls.lwt cstruct)

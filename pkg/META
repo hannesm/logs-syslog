@@ -21,7 +21,7 @@ package "unix" (
 package "lwt" (
   description = "Lwt syslog reporter"
   version = "%%VERSION_NUM%%"
-  requires = "logs-syslog logs syslog-message ptime.clock.os ipaddr lwt"
+  requires = "logs-syslog logs syslog-message ptime.clock.os ipaddr lwt x509 tls tls.lwt cstruct"
   archive(byte) = "logs_syslog_lwt.cma"
   archive(native) = "logs_syslog_lwt.cmxa"
   plugin(byte) = "logs_syslog_lwt.cma"

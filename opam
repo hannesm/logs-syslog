@@ -19,11 +19,11 @@ depends: [
 ]
 
 depopts: [
-  "lwt"
+  "lwt" "x509" "tls"
 ]
 
 build: [
   [ "ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%"
-    "--with-lwt" "%{lwt:installed}%" ]
+    "--with-lwt" "%{lwt+x509+tls:installed}%" ]
 ]
 
