@@ -9,7 +9,7 @@ let syslog_report host send =
     let k _ =
       let msg = message ~host ~source level timestamp (flush ()) in
       let unblock () = over () ; Lwt.return_unit in
-      Lwt.finalize (send (Bytes.of_string (Syslog_message.to_string msg))) unblock |> Lwt.ignore_result ;
+      Lwt.finalize (send (Syslog_message.to_string msg)) unblock |> Lwt.ignore_result ;
       k ()
     in
     msgf @@ fun ?header:_h ?tags:_t fmt ->
@@ -24,9 +24,8 @@ let udp_reporter host ip port =
   let s = Lwt_unix.(socket PF_INET SOCK_DGRAM 0) in
   let send msg () =
     Lwt.catch
-      (fun () -> Lwt_unix.sendto s msg 0 (Bytes.length msg) [] sa >|= fun _ -> ())
+      (fun () -> Lwt_unix.sendto s (Bytes.of_string msg) 0 (String.length msg) [] sa >|= fun _ -> ())
       (function Unix.Unix_error (e, f, _) ->
-               let msg = Bytes.to_string msg in
                Printf.eprintf "error in %s %s while sending to %s:%d log message %s\n"
                  f (Unix.error_message e) (Ipaddr.V4.to_string ip) port msg ;
                Lwt.return_unit)
@@ -50,15 +49,16 @@ let tcp_reporter host ip port =
     connect () >>= function
     | Ok () -> k msg ()
     | Error e ->
-      Printf.eprintf "%s while sending log message %s\n" e (Bytes.to_string msg) ;
+      Printf.eprintf "%s while sending log message %s\n" e msg ;
       Lwt.return_unit
   in
   connect () >>= function
   | Error e -> Lwt.return (Error e)
   | Ok () ->
-    let rec send msg () = match !s with
-      | None -> reconnect send msg
+    let rec send omsg () = match !s with
+      | None -> reconnect send omsg
       | Some sock ->
+        let msg = Bytes.of_string (omsg ^ "\n") in
         let len = Bytes.length msg in
         let rec aux idx =
           Lwt.catch (fun () ->
@@ -69,7 +69,7 @@ let tcp_reporter host ip port =
                let err = Unix.error_message e in
                Printf.eprintf "error %s in function %s, reconnecting\n" err f ;
                s := None ;
-               reconnect send msg)
+               reconnect send omsg)
         in
         aux 0
     in

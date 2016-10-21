@@ -7,7 +7,7 @@ let syslog_report host send =
     let timestamp = Ptime_clock.now () in
     let k _ =
       let msg = message ~host ~source level timestamp (flush ()) in
-      send (Bytes.of_string (Syslog_message.to_string msg)) ;
+      send (Syslog_message.to_string msg) ;
       over () ; k ()
     in
     msgf @@ fun ?header:_h ?tags:_t fmt ->
@@ -22,9 +22,8 @@ let udp_reporter host ip port =
   let sa = sock ip port in
   let s = Unix.(socket PF_INET SOCK_DGRAM 0) in
   let send msg =
-    try ignore(Unix.sendto s msg 0 (Bytes.length msg) [] sa) with
+    try ignore(Unix.sendto s (Bytes.of_string msg) 0 (String.length msg) [] sa) with
     | Unix.Unix_error (e, f, _) ->
-      let msg = Bytes.to_string msg in
       Printf.eprintf "error in %s %s while sending to %s:%d log message %s\n"
         f (Unix.error_message e) (Ipaddr.V4.to_string ip) port msg
   in
@@ -50,15 +49,15 @@ let tcp_reporter host ip port =
   let reconnect k msg =
     match connect () with
     | Ok () -> k msg
-    | Error e -> Printf.eprintf "%s while sending log message %s\n"
-                   e (Bytes.to_string msg)
+    | Error e -> Printf.eprintf "%s while sending log message %s\n" e msg
   in
   match connect () with
   | Error e -> Error e
   | Ok () ->
-    let rec send msg = match !s with
-      | None -> reconnect send msg
+    let rec send omsg = match !s with
+      | None -> reconnect send omsg
       | Some sock ->
+        let msg = Bytes.of_string (omsg ^ "\n") in
         let len = Bytes.length msg in
         let rec aux idx =
           try
@@ -70,7 +69,7 @@ let tcp_reporter host ip port =
             let err = Unix.error_message e in
             Printf.eprintf "error %s in function %s, reconnecting\n" err f ;
             s := None ;
-            reconnect send msg
+            reconnect send omsg
         in
         aux 0
     in
