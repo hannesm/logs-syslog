@@ -4,8 +4,9 @@ script: bash -ex .travis-opam.sh
 sudo: required
 env:
   - PACKAGE="logs-syslog" OCAML_VERSION=4.02
-  - PACKAGE="logs-syslog" OCAML_VERSION=4.02 DEPOPTS="lwt x509 tls" TESTS=false
-  - PACKAGE="logs-syslog" OCAML_VERSION=4.03 DEPOPTS="mirage-types lwt" TESTS=false
+  - PACKAGE="logs-syslog" OCAML_VERSION=4.03
+  - PACKAGE="logs-syslog" OCAML_VERSION=4.02 PINS="tls:https://github.com/mirleft/ocaml-tls.git#host-not-required" DEPOPTS="lwt x509 tls" TESTS=false
+  - PACKAGE="logs-syslog" OCAML_VERSION=4.02 EXTRA_REMOTES="https://github.com/mirage/mirage-dev.git" DEPOPTS="mirage-types lwt" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
 # once we have ipaddr working in 4.04  - PACKAGE="logs-syslog" OCAML_VERSION=4.04
 notifications:
   email: false

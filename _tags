@@ -5,7 +5,7 @@ true : package(result syslog-message logs ptime ipaddr)
 
 <src/logs_syslog_unix.{ml,mli}>: package(ptime.clock.os)
 
-<src/logs_syslog_lwt_common.{ml,mli}>: package(lwt x509 tls cstruct)
+<src/logs_syslog_lwt_common.{ml,mli}>: package(lwt)
 
 <src/logs_syslog_lwt.{ml,mli}>: package(ptime.clock.os lwt logs.lwt x509 tls tls.lwt cstruct)
 
