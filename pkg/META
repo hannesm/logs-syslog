@@ -1,6 +1,6 @@
 description = "Emit logs via syslog"
 version = "%%VERSION_NUM%%"
-requires = "logs syslog-message"
+requires = "logs syslog-message ptime"
 archive(byte) = "logs-syslog.cma"
 archive(native) = "logs-syslog.cmxa"
 plugin(byte) = "logs-syslog.cma"
