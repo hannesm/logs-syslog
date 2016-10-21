@@ -18,7 +18,7 @@ let syslog_report host send =
 let sock ip port =
   Unix.(ADDR_INET (inet_addr_of_string (Ipaddr.V4.to_string ip), port))
 
-let udp_syslog_reporter host ip port =
+let udp_reporter host ip port =
   let sa = sock ip port in
   let s = Unix.(socket PF_INET SOCK_DGRAM 0) in
   let send msg =
@@ -31,7 +31,7 @@ let udp_syslog_reporter host ip port =
   syslog_report host send
 
 (* TODO: someone should call close at program exit *)
-let tcp_syslog_reporter host ip port =
+let tcp_reporter host ip port =
   let sa = sock ip port in
   let s = ref None in
   let connect () =
@@ -79,10 +79,10 @@ let tcp_syslog_reporter host ip port =
 (* example code *)
 (* let _ =
    let lo = Ipaddr.V4.of_string_exn "127.0.0.1" in
-   match tcp_syslog_reporter "OCaml" lo 5514 with
+   match tcp_reporter "OCaml" lo 5514 with
    | Error e -> print_endline e
    | Ok r -> Logs.set_reporter r ;
-     (* Logs.set_reporter (udp_syslog_reporter "OCaml" lo 514) ; *)
+     (* Logs.set_reporter (udp_reporter "OCaml" lo 514) ; *)
      Logs.set_level ~all:true (Some Logs.Debug) ;
      Logs.warn (fun l -> l "foobar") ;
      Logs.err (fun l -> l "bar foofoobar") ;
