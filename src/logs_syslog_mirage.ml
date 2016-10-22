@@ -32,7 +32,7 @@ module Tcp (C : V1.PCLOCK) (TCP : V1_LWT.TCP) = struct
     let rec send omsg = match !f with
       | None -> reconnect send omsg
       | Some flow ->
-        let msg = Cstruct.(of_string (omsg ^ "\n")) in
+        let msg = Cstruct.(of_string (omsg ^ "\000")) in
         TCP.write flow msg >>= function
         | `Ok () -> Lwt.return_unit
         | `Eof | `Error _ -> f := None ; reconnect send omsg

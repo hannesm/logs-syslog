@@ -42,7 +42,7 @@ let tcp_reporter host ip port =
     let rec send omsg = match !s with
       | None -> reconnect send omsg
       | Some sock ->
-        let msg = Bytes.of_string (omsg ^ "\n") in
+        let msg = Bytes.of_string (omsg ^ "\000") in
         let len = Bytes.length msg in
         let rec aux idx =
           Lwt.catch (fun () ->
