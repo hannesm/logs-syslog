@@ -21,12 +21,23 @@ package "unix" (
 package "lwt" (
   description = "Lwt syslog reporter"
   version = "%%VERSION_NUM%%"
-  requires = "logs-syslog logs syslog-message ptime.clock.os ipaddr lwt x509 tls tls.lwt cstruct"
+  requires = "logs-syslog logs syslog-message ptime.clock.os ipaddr lwt"
   archive(byte) = "logs-syslog-lwt.cma"
   archive(native) = "logs-syslog-lwt.cmxa"
   plugin(byte) = "logs-syslog-lwt.cma"
   plugin(native) = "logs-syslog-lwt.cmxs"
   exists_if = "logs-syslog-lwt.cma"
+
+  package "tls" (
+    description = "Lwt TLS syslog reporter"
+    version = "%%VERSION_NUM%%"
+    requires = "logs-syslog logs syslog-message ptime.clock.os ipaddr lwt x509 tls tls.lwt cstruct"
+    archive(byte) = "logs-syslog-lwt-tls.cma"
+    archive(native) = "logs-syslog-lwt-tls.cmxa"
+    plugin(byte) = "logs-syslog-lwt-tls.cma"
+    plugin(native) = "logs-syslog-lwt-tls.cmxs"
+    exists_if = "logs-syslog-lwt-tls.cma"
+  )
 )
 
 package "mirage" (
@@ -38,4 +49,15 @@ package "mirage" (
   plugin(byte) = "logs-syslog-mirage.cma"
   plugin(native) = "logs-syslog-mirage.cmxs"
   exists_if = "logs-syslog-mirage.cma"
+
+  package "tls" (
+    description = "Mirage TLS syslog reporter"
+    version = "%%VERSION_NUM%%"
+    requires = "logs-syslog logs syslog-message ipaddr lwt mirage-types cstruct x509 tls tls.mirage"
+    archive(byte) = "logs-syslog-mirage-tls.cma"
+    archive(native) = "logs-syslog-mirage-tls.cmxa"
+    plugin(byte) = "logs-syslog-mirage-tls.cma"
+    plugin(native) = "logs-syslog-mirage-tls.cmxs"
+    exists_if = "logs-syslog-mirage-tls.cma"
+  )
 )

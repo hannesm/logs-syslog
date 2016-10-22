@@ -15,11 +15,8 @@ let syslog_report host send =
   in
   { Logs.report }
 
-let sock ip port =
-  Unix.(ADDR_INET (inet_addr_of_string (Ipaddr.V4.to_string ip), port))
-
 let udp_reporter host ip port =
-  let sa = sock ip port in
+  let sa = Unix.ADDR_INET (inet_of_ip ip, port) in
   let s = Unix.(socket PF_INET SOCK_DGRAM 0) in
   let send msg =
     try ignore(Unix.sendto s (Bytes.of_string msg) 0 (String.length msg) [] sa) with
@@ -31,7 +28,7 @@ let udp_reporter host ip port =
 
 (* TODO: someone should call close at program exit *)
 let tcp_reporter host ip port =
-  let sa = sock ip port in
+  let sa = Unix.ADDR_INET (inet_of_ip ip, port) in
   let s = ref None in
   let connect () =
     let sock = Unix.(socket PF_INET SOCK_STREAM 0) in
