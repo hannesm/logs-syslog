@@ -1,7 +1,6 @@
 
-(* XXX: are these good values? ask verbosemode! *)
 let slevel = function
-  | Logs.App -> Syslog_message.Critical
+  | Logs.App -> Syslog_message.Informational
   | Logs.Error -> Syslog_message.Error
   | Logs.Warning -> Syslog_message.Warning
   | Logs.Info -> Syslog_message.Informational
