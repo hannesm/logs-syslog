@@ -19,13 +19,13 @@ depends: [
 ]
 
 depopts: [
-  "lwt" "x509" "tls" "mirage-types" "cstruct" "ipaddr"
+  "lwt" "x509" "tls" "mirage-types" "cstruct" "ipaddr" "io-page"
 ]
 
 build: [
   [ "ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%"
     "--with-lwt" "%{lwt+x509+tls:installed}%"
-    "--with-mirage" "%{mirage-types+lwt+cstruct+ipaddr:installed}%"
+    "--with-mirage" "%{mirage-types+lwt+cstruct+ipaddr+io-page:installed}%"
     "--with-tls" "%{x509+tls+cstruct:installed}%" ]
 ]
 

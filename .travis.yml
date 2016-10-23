@@ -7,7 +7,7 @@ env:
   - PACKAGE="logs-syslog" OCAML_VERSION=4.03
   - PACKAGE="logs-syslog" OCAML_VERSION=4.04
   - PACKAGE="logs-syslog" OCAML_VERSION=4.02 PINS="tls:https://github.com/mirleft/ocaml-tls.git#host-not-required" DEPOPTS="lwt x509 tls" TESTS=false
-  - PACKAGE="logs-syslog" OCAML_VERSION=4.02 EXTRA_REMOTES="https://github.com/mirage/mirage-dev.git" DEPOPTS="mirage-types lwt cstruct" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
-  - PACKAGE="logs-syslog" OCAML_VERSION=4.02 EXTRA_REMOTES="https://github.com/mirage/mirage-dev.git" PINS="tls:https://github.com/mirleft/ocaml-tls.git#host-not-required" DEPOPTS="mirage-types lwt cstruct x509 tls" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
+  - PACKAGE="logs-syslog" OCAML_VERSION=4.02 EXTRA_REMOTES="https://github.com/mirage/mirage-dev.git" DEPOPTS="mirage-types lwt cstruct ipaddr io-page" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
+  - PACKAGE="logs-syslog" OCAML_VERSION=4.02 EXTRA_REMOTES="https://github.com/mirage/mirage-dev.git" PINS="tls:https://github.com/mirleft/ocaml-tls.git#host-not-required" DEPOPTS="mirage-types lwt cstruct ipaddr io-page x509 tls" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
 notifications:
   email: false
