@@ -15,7 +15,7 @@ module Tls (C : V1.PCLOCK) (TCP : V1_LWT.TCP) (KV : V1_LWT.KV_RO) = struct
       TCP.create_connection tcp (dst, port) >>= function
       | `Error e -> Lwt.return (Error (`TCP e))
       | `Ok flow ->
-        TLS.client_of_flow conf "" flow >|= function
+        TLS.client_of_flow conf flow >|= function
         | `Ok tlsflow -> f := Some tlsflow ; Ok ()
         | `Eof -> Error `Eof
         | `Error e -> Error (`TLS e)
