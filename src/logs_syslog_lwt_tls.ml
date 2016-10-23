@@ -4,7 +4,7 @@ open Logs_syslog
 open Logs_syslog_lwt_common
 
 let tcp_tls_reporter host ip port ~cacert ~cert ~priv_key =
-  let sa = Lwt_unix.ADDR_INET (inet_of_ip ip, port) in
+  let sa = Lwt_unix.ADDR_INET (ip, port) in
   let tls = ref None in
   X509_lwt.private_of_pems ~cert ~priv_key >>= fun priv ->
   X509_lwt.authenticator (`Ca_file cacert) >>= fun authenticator ->
@@ -23,7 +23,7 @@ let tcp_tls_reporter host ip port ~cacert ~cert ~priv_key =
          Lwt.return @@ match exn with
          | Unix.Unix_error (e, f, _) ->
            Error (Printf.sprintf "error %s in function %s while connecting %s:%d"
-                    (Unix.error_message e) f (Ipaddr.V4.to_string ip) port)
+                    (Unix.error_message e) f (Unix.string_of_inet_addr ip) port)
          | Tls_lwt.Tls_failure f ->
            Error (Printf.sprintf "TLS %s" (Tls.Engine.string_of_failure f)))
   in
@@ -56,7 +56,7 @@ let tcp_tls_reporter host ip port ~cacert ~cert ~priv_key =
 
 (*
 let main () =
-  let lo = Ipaddr.V4.of_string_exn "127.0.0.1" in
+  let lo = Unix.inet_addr_of_string "127.0.0.1" in
   tcp_tls_reporter "OCaml" lo 6514 ~cacert:"cacert.pem" ~cert:"client.pem" ~priv_key:"client.key"
   >>= function
   | Error e -> print_endline e ; Lwt.return_unit

@@ -1,7 +1,7 @@
 open Result
 
 (* TODO: IPv6 *)
-val udp_reporter : string -> Ipaddr.V4.t -> int -> Logs.reporter
+val udp_reporter : string -> Lwt_unix.inet_addr -> int -> Logs.reporter
 
-val tcp_reporter : string -> Ipaddr.V4.t -> int -> (Logs.reporter, string) result Lwt.t
+val tcp_reporter : string -> Lwt_unix.inet_addr -> int -> (Logs.reporter, string) result Lwt.t
 

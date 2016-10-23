@@ -20,5 +20,3 @@ let ppf, flush =
 let message ?(facility = Syslog_message.System_Daemons) ~host ~source level timestamp message =
   let message = source ^ ": " ^ message in
   { Syslog_message.facility ; severity = slevel level ; timestamp ; hostname = host ; message }
-
-let inet_of_ip ip = Unix.inet_addr_of_string (Ipaddr.V4.to_string ip)

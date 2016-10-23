@@ -4,20 +4,20 @@ open Logs_syslog
 open Logs_syslog_lwt_common
 
 let udp_reporter host ip port =
-  let sa = Lwt_unix.ADDR_INET (inet_of_ip ip, port) in
+  let sa = Lwt_unix.ADDR_INET (ip, port) in
   let s = Lwt_unix.(socket PF_INET SOCK_DGRAM 0) in
   let send msg =
     Lwt.catch
       (fun () -> Lwt_unix.sendto s (Bytes.of_string msg) 0 (String.length msg) [] sa >|= fun _ -> ())
       (function Unix.Unix_error (e, f, _) ->
                Printf.eprintf "error in %s %s while sending to %s:%d log message %s\n"
-                 f (Unix.error_message e) (Ipaddr.V4.to_string ip) port msg ;
+                 f (Unix.error_message e) (Unix.string_of_inet_addr ip) port msg ;
                Lwt.return_unit)
   in
   syslog_report_common host Ptime_clock.now send
 
 let tcp_reporter host ip port =
-  let sa = Lwt_unix.ADDR_INET (inet_of_ip ip, port) in
+  let sa = Lwt_unix.ADDR_INET (ip, port) in
   let s = ref None in
   let connect () =
     let sock = Lwt_unix.(socket PF_INET SOCK_STREAM 0) in
@@ -27,7 +27,7 @@ let tcp_reporter host ip port =
       (fun () -> Lwt_unix.connect sock sa >|= fun () -> s := Some sock ; Ok ())
       (function Unix.Unix_error (e, f, _) ->
          Lwt.return (Error (Printf.sprintf "error %s in function %s while connecting %s:%d"
-                              (Unix.error_message e) f (Ipaddr.V4.to_string ip) port)))
+                              (Unix.error_message e) f (Unix.string_of_inet_addr ip) port)))
   in
   let reconnect k msg =
     connect () >>= function
@@ -62,7 +62,7 @@ let tcp_reporter host ip port =
 (* example code *)
 (*
 let main () =
-  let lo = Ipaddr.V4.of_string_exn "127.0.0.1" in
+  let lo = Unix.inet_addr_of_string "127.0.0.1" in
   (*  Logs.set_reporter (udp_reporter "OCaml" lo 514) ; *)
   (*  tcp_reporter "OCaml" lo 5514  *)
 (* >>= function

@@ -14,19 +14,18 @@ depends: [
   "topkg" {build}
   "logs"
   "ptime"
-  "ipaddr"
   "syslog-message"
   "result"
 ]
 
 depopts: [
-  "lwt" "x509" "tls" "mirage-types" "cstruct"
+  "lwt" "x509" "tls" "mirage-types" "cstruct" "ipaddr"
 ]
 
 build: [
   [ "ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%"
     "--with-lwt" "%{lwt+x509+tls:installed}%"
-    "--with-mirage" "%{mirage-types+lwt+cstruct:installed}%"
+    "--with-mirage" "%{mirage-types+lwt+cstruct+ipaddr:installed}%"
     "--with-tls" "%{x509+tls+cstruct:installed}%" ]
 ]
 
