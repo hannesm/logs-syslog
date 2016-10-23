@@ -5,13 +5,13 @@ module Tls (C : V1.PCLOCK) (TCP : V1_LWT.TCP) (KV : V1_LWT.KV_RO) = struct
   module TLS = Tls_mirage.Make(TCP)
   module X509 = Tls_mirage.X509(KV)(C)
 
-  let create clock tcp kv host dst dst_port =
+  let create clock tcp kv ~hostname dst ?(port = 6514) () =
     let f = ref None in
     X509.authenticator kv clock `CAs >>= fun authenticator ->
     X509.certificate kv `Default >>= fun priv ->
     let conf = Tls.Config.client ~authenticator ~certificates:(`Single priv) () in
     let connect () =
-      TCP.create_connection tcp (dst, dst_port) >>= function
+      TCP.create_connection tcp (dst, port) >>= function
       | `Error e -> Lwt.return (Error (`TCP e))
       | `Ok flow ->
         TLS.client_of_flow conf "" flow >|= function
@@ -35,7 +35,7 @@ module Tls (C : V1.PCLOCK) (TCP : V1_LWT.TCP) (KV : V1_LWT.KV_RO) = struct
     connect () >|= function
     | Ok () ->
       Ok (Logs_syslog_lwt_common.syslog_report_common
-            host
+            hostname
             (fun () -> Ptime.v (C.now_d_ps clock))
             send)
     | Error (`TCP _) -> Error "couldn't connect via TCP to log host"

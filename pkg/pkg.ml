@@ -17,8 +17,8 @@ let () =
   Ok [
     Pkg.mllib "src/logs-syslog.mllib" ;
     Pkg.mllib "src/logs-syslog-unix.mllib" ;
-    Pkg.mllib ~cond:lwt "src/logs-syslog-lwt.mllib" ;
-    Pkg.mllib ~cond:(lwt && tls) "src/logs-syslog-lwt-tls.mllib" ;
-    Pkg.mllib ~cond:mirage "src/logs-syslog-mirage.mllib" ;
-    Pkg.mllib ~cond:(mirage && tls) "src/logs-syslog-mirage-tls.mllib" ;
+    Pkg.mllib ~api:["Logs_syslog_lwt"] ~cond:lwt "src/logs-syslog-lwt.mllib" ;
+    Pkg.mllib ~api:["Logs_syslog_lwt_tls"] ~cond:(lwt && tls) "src/logs-syslog-lwt-tls.mllib" ;
+    Pkg.mllib ~api:["Logs_syslog_mirage"] ~cond:mirage "src/logs-syslog-mirage.mllib" ;
+    Pkg.mllib ~api:["Logs_syslog_mirage_tls"] ~cond:(mirage && tls) "src/logs-syslog-mirage-tls.mllib" ;
   ]

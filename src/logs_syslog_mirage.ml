@@ -1,15 +1,15 @@
 module Udp (C : V1.PCLOCK) (UDP : V1_LWT.UDP) = struct
   (* need a console for emergency messages (temporary network issues) *)
 
-  let create clock udp host dst dst_port =
+  let create clock udp ~hostname dst ?(port = 514) () =
     Logs_syslog_lwt_common.syslog_report_common
-      host
+      hostname
       (* This API for PCLOCK is inconvenient (overengineered?) *)
       (fun () -> Ptime.v (C.now_d_ps clock))
       (fun s ->
          (* in another world, we will need to handle potential errors, such as
             'no route to host' *)
-         UDP.write ~dst ~dst_port udp (Cstruct.of_string s))
+         UDP.write ~dst ~dst_port:port udp (Cstruct.of_string s))
 end
 
 module Tcp (C : V1.PCLOCK) (TCP : V1_LWT.TCP) = struct
@@ -17,10 +17,10 @@ module Tcp (C : V1.PCLOCK) (TCP : V1_LWT.TCP) = struct
   open Result
   open Lwt.Infix
 
-  let create clock tcp host dst dst_port =
+  let create clock tcp ~hostname dst ?(port = 514) () =
     let f = ref None in
     let connect () =
-      TCP.create_connection tcp (dst, dst_port) >|= function
+      TCP.create_connection tcp (dst, port) >|= function
       | `Ok flow -> f := Some flow ; Ok ()
       | `Error e -> Error e
     in
@@ -41,7 +41,7 @@ module Tcp (C : V1.PCLOCK) (TCP : V1_LWT.TCP) = struct
     connect () >|= function
     | Ok () ->
       Ok (Logs_syslog_lwt_common.syslog_report_common
-            host
+            hostname
             (fun () -> Ptime.v (C.now_d_ps clock))
             send)
     | Error _ -> Error "couldn't connect to log host"

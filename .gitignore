@@ -12,3 +12,7 @@ Makefile
 key_gen.ml
 log
 main.ml
+
+*.key
+*.pem
+*.csr

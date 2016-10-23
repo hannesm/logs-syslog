@@ -18,5 +18,5 @@ let ppf, flush =
 
 (* TODO: can we derive the facility from the source? *)
 let message ?(facility = Syslog_message.System_Daemons) ~host ~source level timestamp message =
-  let message = source ^ ": " ^ message in
+  let message = Printf.sprintf "%s %s" source message in
   { Syslog_message.facility ; severity = slevel level ; timestamp ; hostname = host ; message }
