@@ -8,7 +8,8 @@ let mirage = Conf.with_pkg ~default:false "mirage"
 let tls = Conf.with_pkg ~default:false "tls"
 
 let () =
-  Pkg.describe "logs-syslog" @@ fun c ->
+  let opams = [ Pkg.opam_file "opam" ~lint_deps_excluding:(Some ["io-page"]) ] in
+  Pkg.describe ~opams "logs-syslog" @@ fun c ->
   let lwt = Conf.value c lwt
   and mirage = Conf.value c mirage
   and tls = Conf.value c tls
