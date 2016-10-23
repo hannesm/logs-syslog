@@ -20,3 +20,16 @@ let ppf, flush =
 let message ?(facility = Syslog_message.System_Daemons) ~host ~source level timestamp message =
   let message = Printf.sprintf "%s %s" source message in
   { Syslog_message.facility ; severity = slevel level ; timestamp ; hostname = host ; message }
+
+type framing = [
+  | `LineFeed
+  | `Null
+  | `Custom of string
+  | `Count
+]
+
+let frame_message msg = function
+  | `LineFeed -> msg ^ "\n"
+  | `Null -> msg ^ "\000"
+  | `Custom s -> msg ^ s
+  | `Count -> Printf.sprintf "%d %s" (String.length msg) msg

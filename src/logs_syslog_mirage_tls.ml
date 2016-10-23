@@ -1,11 +1,12 @@
 module Tls (C : V1.PCLOCK) (TCP : V1_LWT.TCP) (KV : V1_LWT.KV_RO) = struct
   open Result
   open Lwt.Infix
+  open Logs_syslog
 
   module TLS = Tls_mirage.Make(TCP)
   module X509 = Tls_mirage.X509(KV)(C)
 
-  let create clock tcp kv ~hostname dst ?(port = 6514) () =
+  let create clock tcp kv ~hostname dst ?(port = 6514) ?(framing = `Count) () =
     let f = ref None in
     X509.authenticator kv clock `CAs >>= fun authenticator ->
     X509.certificate kv `Default >>= fun priv ->
@@ -27,7 +28,7 @@ module Tls (C : V1.PCLOCK) (TCP : V1_LWT.TCP) (KV : V1_LWT.KV_RO) = struct
     let rec send omsg = match !f with
       | None -> reconnect send omsg
       | Some flow ->
-        let msg = Cstruct.of_string (Printf.sprintf "%d %s" (String.length omsg) omsg) in
+        let msg = Cstruct.of_string (frame_message omsg framing) in
         TLS.write flow msg >>= function
         | `Ok () -> Lwt.return_unit
         | `Eof | `Error _ -> f := None ; reconnect send omsg

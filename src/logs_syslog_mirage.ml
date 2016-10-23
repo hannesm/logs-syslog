@@ -16,8 +16,9 @@ module Tcp (C : V1.PCLOCK) (TCP : V1_LWT.TCP) = struct
   (* need a console for emergency messages (temporary network issues) *)
   open Result
   open Lwt.Infix
+  open Logs_syslog
 
-  let create clock tcp ~hostname dst ?(port = 514) () =
+  let create clock tcp ~hostname dst ?(port = 514) ?(framing = `Null) () =
     let f = ref None in
     let connect () =
       TCP.create_connection tcp (dst, port) >|= function
@@ -32,7 +33,7 @@ module Tcp (C : V1.PCLOCK) (TCP : V1_LWT.TCP) = struct
     let rec send omsg = match !f with
       | None -> reconnect send omsg
       | Some flow ->
-        let msg = Cstruct.(of_string (omsg ^ "\000")) in
+        let msg = Cstruct.(of_string (frame_message omsg `Null)) in
         TCP.write flow msg >>= function
         | `Ok () -> Lwt.return_unit
         | `Eof | `Error _ -> f := None ; reconnect send omsg

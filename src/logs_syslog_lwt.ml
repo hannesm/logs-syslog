@@ -1,6 +1,7 @@
 open Lwt.Infix
 open Result
 open Logs_syslog_lwt_common
+open Logs_syslog
 
 let udp_reporter ?hostname ip ?(port = 514) () =
   let sa = Lwt_unix.ADDR_INET (ip, port) in
@@ -20,7 +21,7 @@ let udp_reporter ?hostname ip ?(port = 514) () =
    | None -> Lwt_unix.gethostname ()) >|= fun host ->
   syslog_report_common host Ptime_clock.now send
 
-let tcp_reporter ?hostname ip ?(port = 514) () =
+let tcp_reporter ?hostname ip ?(port = 514) ?(framing = `Null) () =
   let sa = Lwt_unix.ADDR_INET (ip, port) in
   let s = ref None in
   (match hostname with
@@ -50,7 +51,7 @@ let tcp_reporter ?hostname ip ?(port = 514) () =
     let rec send omsg = match !s with
       | None -> reconnect send omsg
       | Some sock ->
-        let msg = Bytes.of_string (omsg ^ "\000") in
+        let msg = Bytes.of_string (frame_message omsg framing) in
         let len = Bytes.length msg in
         let rec aux idx =
           Lwt.catch (fun () ->

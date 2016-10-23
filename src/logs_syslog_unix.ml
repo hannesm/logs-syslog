@@ -30,7 +30,7 @@ let udp_reporter ?(hostname = Unix.gethostname ()) ip ?(port = 514) () =
   syslog_report hostname send
 
 (* TODO: someone should call close at program exit *)
-let tcp_reporter ?(hostname = Unix.gethostname ()) ip ?(port = 514) () =
+let tcp_reporter ?(hostname = Unix.gethostname ()) ip ?(port = 514) ?(framing = `Null) () =
   let sa = Unix.ADDR_INET (ip, port) in
   let s = ref None in
   let connect () =
@@ -58,7 +58,7 @@ let tcp_reporter ?(hostname = Unix.gethostname ()) ip ?(port = 514) () =
     let rec send omsg = match !s with
       | None -> reconnect send omsg
       | Some sock ->
-        let msg = Bytes.of_string (omsg ^ "\000") in
+        let msg = Bytes.of_string (frame_message omsg framing) in
         let len = Bytes.length msg in
         let rec aux idx =
           try

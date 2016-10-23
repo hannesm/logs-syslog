@@ -1,8 +1,9 @@
 open Lwt.Infix
 open Result
 open Logs_syslog_lwt_common
+open Logs_syslog
 
-let tcp_tls_reporter ?hostname ip ?(port = 6514) ~cacert ~cert ~priv_key () =
+let tcp_tls_reporter ?hostname ip ?(port = 6514) ~cacert ~cert ~priv_key ?(framing = `Count) () =
   let sa = Lwt_unix.ADDR_INET (ip, port) in
   let tls = ref None in
   X509_lwt.private_of_pems ~cert ~priv_key >>= fun priv ->
@@ -43,7 +44,7 @@ let tcp_tls_reporter ?hostname ip ?(port = 6514) ~cacert ~cert ~priv_key () =
     let rec send omsg = match !tls with
       | None -> reconnect send omsg
       | Some t ->
-        let msg = Cstruct.of_string (Printf.sprintf "%d %s" (String.length omsg) omsg) in
+        let msg = Cstruct.of_string (frame_message omsg framing) in
         Lwt.catch
           (fun () -> Tls_lwt.Unix.write t msg)
           (function
