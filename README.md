@@ -23,9 +23,8 @@ using TLS `Logs-syslog-mirage-tls`.
 
 ## Installation
 
-Depending on your usage scenario, you might need more pins (mirage-dev repo and
-tls dev-repo).
-
-The most basic ones (Unix and lwt) work without any additional pins:
+Depending on your usage scenario, you need some pins:
+- MirageOS: `opam repo add mirage-dev https://github.com/mirage/mirage-dev
+- Lwt with TLS support: `opam pin add tls --dev-repo
 
 `opam pin add logs-syslog https://github.com/hannesm/logs-syslog.git`
