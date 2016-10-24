@@ -23,8 +23,8 @@ using TLS `Logs-syslog-mirage-tls`.
 
 ## Installation
 
-Depending on your usage scenario, you might need more pins (mirage-dev and tls
-to https://github.com/mirleft/ocaml-tls.git#host-not-required).
+Depending on your usage scenario, you might need more pins (mirage-dev repo and
+tls dev-repo).
 
 The most basic ones (Unix and lwt) work without any additional pins:
 
