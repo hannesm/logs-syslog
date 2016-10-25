@@ -3,11 +3,15 @@ install: wget https://raw.githubusercontent.com/ocaml/ocaml-ci-scripts/master/.t
 script: bash -ex .travis-opam.sh
 sudo: required
 env:
-  - PACKAGE="logs-syslog" OCAML_VERSION=4.02
-  - PACKAGE="logs-syslog" OCAML_VERSION=4.03
-  - PACKAGE="logs-syslog" OCAML_VERSION=4.04
-  - PACKAGE="logs-syslog" OCAML_VERSION=4.02 PINS="tls" DEPOPTS="lwt x509 tls" TESTS=false
-  - PACKAGE="logs-syslog" OCAML_VERSION=4.02 EXTRA_REMOTES="https://github.com/mirage/mirage-dev.git" DEPOPTS="mirage-types lwt cstruct ipaddr io-page" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
-  - PACKAGE="logs-syslog" OCAML_VERSION=4.02 EXTRA_REMOTES="https://github.com/mirage/mirage-dev.git" DEPOPTS="mirage-types lwt cstruct ipaddr io-page x509 tls" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
+  global:
+    - PACKAGE="logs-syslog"
+    - PINS="syslog-message"
+  matrix:
+    - OCAML_VERSION=4.02
+    - OCAML_VERSION=4.03
+    - OCAML_VERSION=4.04
+    - OCAML_VERSION=4.02 PINS="syslog-message tls" DEPOPTS="lwt x509 tls" TESTS=false
+    - OCAML_VERSION=4.02 EXTRA_REMOTES="https://github.com/mirage/mirage-dev.git" DEPOPTS="mirage-types lwt cstruct ipaddr io-page" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
+    - OCAML_VERSION=4.02 EXTRA_REMOTES="https://github.com/mirage/mirage-dev.git" DEPOPTS="mirage-types lwt cstruct ipaddr io-page x509 tls" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
 notifications:
   email: false

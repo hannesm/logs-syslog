@@ -7,7 +7,7 @@ let syslog_report host send =
     let timestamp = Ptime_clock.now () in
     let k _ =
       let msg = message ~host ~source level timestamp (flush ()) in
-      send (Syslog_message.to_string msg) ;
+      send (Syslog_message.encode msg) ;
       over () ; k ()
     in
     msgf @@ fun ?header:_h ?tags:_t fmt ->
