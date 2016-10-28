@@ -23,4 +23,11 @@ using TLS `Logs-syslog-mirage-tls`.
 
 ## Installation
 
-`opam pin add logs-syslog https://github.com/hannesm/logs-syslog.git`
+This is targeting other libraries (apart from syslog-message) which are released to opam-repository.
+
+```
+opam pin add syslog-message --dev-repo
+opam pin add logs-syslog https://github.com/hannesm/logs-syslog.git
+```
+
+Use the [dev branch](https://github.com/hannesm/logs-syslog/tree/dev) for Mirage3 support.
