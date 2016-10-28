@@ -16,8 +16,10 @@ let ppf, flush =
   ppf, flush
 
 (* TODO: can we derive the facility from the source? *)
-let message ?(facility = Syslog_message.System_Daemons) ~host ~source level timestamp message =
-  let message = Printf.sprintf "%s %s" source message in
+let message ?(facility = Syslog_message.System_Daemons) ~host ~source ~tags level timestamp message =
+  Logs.Tag.pp_set ppf tags ;
+  let tags = flush () in
+  let message = Printf.sprintf "%s %s %s" source tags message in
   { Syslog_message.facility ; severity = slevel level ; timestamp ; hostname = host ; message }
 
 type framing = [

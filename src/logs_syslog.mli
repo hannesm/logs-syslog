@@ -57,13 +57,14 @@
 
     {e %%VERSION%% - {{:%%PKG_HOMEPAGE%% }homepage}} *)
 
-(** [message ~facility ~host ~source level now msg] is [message], a syslog
+(** [message ~facility ~host ~source ~tags level now msg] is [message], a syslog
     message with the given values.  The default [facility] is
     [Syslog_message.System_Daemons].  *)
 val message :
   ?facility:Syslog_message.facility ->
   host:string ->
   source:string ->
+  tags:Logs.Tag.set ->
   Logs.level ->
   Ptime.t ->
   string ->
