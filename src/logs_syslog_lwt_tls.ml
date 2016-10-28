@@ -19,7 +19,7 @@ let tcp_tls_reporter ?hostname ip ?(port = 6514) ~cacert ~cert ~priv_key ?(frami
     Lwt.catch
       (fun () ->
          Lwt_unix.connect sock sa >>= fun () ->
-         Tls_lwt.Unix.client_of_fd conf sock >|= fun t ->
+         Tls_lwt.Unix.client_of_fd conf ~host:"" sock >|= fun t ->
          tls := Some t ;
          Ok ())
       (fun exn ->
