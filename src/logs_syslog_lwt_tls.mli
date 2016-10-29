@@ -15,5 +15,6 @@
     [hostname] is [Lwt_unix.gethostname ()], the default value for [port] is
     6514, [framing] defaults to prepending the length in decimal. *)
 val tcp_tls_reporter : ?hostname:string -> Lwt_unix.inet_addr -> ?port:int ->
-  cacert:string -> cert:string -> priv_key:string -> ?framing:Logs_syslog.framing -> unit ->
+  cacert:string -> cert:string -> priv_key:string ->
+  ?framing:Logs_syslog.framing -> unit ->
   (Logs.reporter, string) Result.result Lwt.t

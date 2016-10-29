@@ -10,7 +10,8 @@ module Tls (C : V1.CLOCK) (TCP : V1_LWT.TCP) (KV : V1_LWT.KV_RO) = struct
     let f = ref None in
     X509.authenticator kv `CAs >>= fun authenticator ->
     X509.certificate kv `Default >>= fun priv ->
-    let conf = Tls.Config.client ~authenticator ~certificates:(`Single priv) () in
+    let certificates = `Single priv in
+    let conf = Tls.Config.client ~authenticator ~certificates () in
     let connect () =
       TCP.create_connection tcp (dst, port) >>= function
       | `Error e -> Lwt.return (Error (`TCP e))

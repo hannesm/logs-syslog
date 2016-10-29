@@ -6,7 +6,9 @@ let syslog_report host send =
     let source = Logs.Src.name src in
     let timestamp = Ptime_clock.now () in
     let k tags ?header _ =
-      let msg = message ~host ~source ~tags ?header level timestamp (flush ()) in
+      let msg =
+        message ~host ~source ~tags ?header level timestamp (flush ())
+      in
       send (Syslog_message.encode msg) ; over () ; k ()
     in
     msgf @@ fun ?header ?(tags = Logs.Tag.empty) fmt ->
@@ -18,7 +20,8 @@ let udp_reporter ?(hostname = Unix.gethostname ()) ip ?(port = 514) () =
   let sa = Unix.ADDR_INET (ip, port) in
   let s = Unix.(socket PF_INET SOCK_DGRAM 0) in
   let rec send msg =
-    try ignore(Unix.sendto s (Bytes.of_string msg) 0 (String.length msg) [] sa) with
+    let b = Bytes.of_string msg in
+    try ignore(Unix.sendto s b 0 (String.length msg) [] sa) with
     | Unix.Unix_error (Unix.EAGAIN, _, _) -> send msg
     | Unix.Unix_error (e, f, _) ->
       Printf.eprintf "error in %s %s while sending to %s:%d\n%s %s\n"
@@ -29,7 +32,8 @@ let udp_reporter ?(hostname = Unix.gethostname ()) ip ?(port = 514) () =
   syslog_report hostname send
 
 (* TODO: someone should call close at program exit *)
-let tcp_reporter ?(hostname = Unix.gethostname ()) ip ?(port = 514) ?(framing = `Null) () =
+let tcp_reporter
+    ?(hostname = Unix.gethostname ()) ip ?(port = 514) ?(framing = `Null) () =
   let sa = Unix.ADDR_INET (ip, port) in
   let s = ref None in
   let connect () =
@@ -42,8 +46,11 @@ let tcp_reporter ?(hostname = Unix.gethostname ()) ip ?(port = 514) ?(framing = 
       Ok ()
     with
     | Unix.Unix_error (e, f, _) ->
-      Error (Printf.sprintf "error %s in function %s while connecting to %s:%d\n"
-               (Unix.error_message e) f (Unix.string_of_inet_addr ip) port)
+      let err =
+        Printf.sprintf "error %s in function %s while connecting to %s:%d\n"
+          (Unix.error_message e) f (Unix.string_of_inet_addr ip) port
+      in
+      Error err
   in
   let reconnect k msg =
     match connect () with

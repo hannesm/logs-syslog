@@ -8,13 +8,16 @@ let udp_reporter ?hostname ip ?(port = 514) () =
   let s = Lwt_unix.(socket PF_INET SOCK_DGRAM 0) in
   let send msg =
     Lwt.catch
-      (fun () -> Lwt_unix.sendto s (Bytes.of_string msg) 0 (String.length msg) [] sa >|= fun _ -> ())
-      (function Unix.Unix_error (e, f, _) ->
-               Printf.eprintf "error in %s %s while sending to %s:%d\n%s %s\n"
-                 f (Unix.error_message e) (Unix.string_of_inet_addr ip) port
-                 (Ptime.to_rfc3339 (Ptime_clock.now ()))
-                 msg ;
-               Lwt.return_unit)
+      (fun () ->
+         let b = Bytes.of_string msg in
+         Lwt_unix.sendto s b 0 (String.length msg) [] sa >|= fun _ -> ())
+      (function
+        | Unix.Unix_error (e, f, _) ->
+          Printf.eprintf "error in %s %s while sending to %s:%d\n%s %s\n"
+            f (Unix.error_message e) (Unix.string_of_inet_addr ip) port
+            (Ptime.to_rfc3339 (Ptime_clock.now ()))
+            msg ;
+          Lwt.return_unit)
   in
   (match hostname with
    | Some x -> Lwt.return x
@@ -34,8 +37,11 @@ let tcp_reporter ?hostname ip ?(port = 514) ?(framing = `Null) () =
     Lwt.catch
       (fun () -> Lwt_unix.connect sock sa >|= fun () -> s := Some sock ; Ok ())
       (function Unix.Unix_error (e, f, _) ->
-         Lwt.return (Error (Printf.sprintf "error %s in function %s while connecting to %s:%d\n"
-                              (Unix.error_message e) f (Unix.string_of_inet_addr ip) port)))
+         let err =
+           Printf.sprintf "error %s in function %s while connecting to %s:%d"
+             (Unix.error_message e) f (Unix.string_of_inet_addr ip) port
+         in
+         Lwt.return (Error err))
   in
   let reconnect k msg =
     connect () >>= function
@@ -63,7 +69,9 @@ let tcp_reporter ?hostname ip ?(port = 514) ?(framing = `Null) () =
               | Unix.Unix_error (e, f, _) ->
                 let err = Unix.error_message e in
                 Printf.eprintf "error %s in function %s, reconnecting\n" err f ;
-                Lwt.catch (fun () -> Lwt_unix.close sock) (fun _ -> Lwt.return_unit) >>= fun () ->
+                Lwt.catch
+                  (fun () -> Lwt_unix.close sock)
+                  (fun _ -> Lwt.return_unit) >>= fun () ->
                 s := None ;
                 reconnect send omsg)
         in

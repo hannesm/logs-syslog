@@ -3,7 +3,8 @@ open Result
 open Logs_syslog_lwt_common
 open Logs_syslog
 
-let tcp_tls_reporter ?hostname ip ?(port = 6514) ~cacert ~cert ~priv_key ?(framing = `Count) () =
+let tcp_tls_reporter
+    ?hostname ip ?(port = 6514) ~cacert ~cert ~priv_key ?(framing = `Count) () =
   let sa = Lwt_unix.ADDR_INET (ip, port) in
   let tls = ref None in
   X509_lwt.private_of_pems ~cert ~priv_key >>= fun priv ->
@@ -25,10 +26,14 @@ let tcp_tls_reporter ?hostname ip ?(port = 6514) ~cacert ~cert ~priv_key ?(frami
       (fun exn ->
          Lwt.return @@ match exn with
          | Unix.Unix_error (e, f, _) ->
-           Error (Printf.sprintf "error %s in function %s while connecting to %s:%d\n"
-                    (Unix.error_message e) f (Unix.string_of_inet_addr ip) port)
+           let err =
+             Printf.sprintf "error %s in function %s while connecting to %s:%d"
+               (Unix.error_message e) f (Unix.string_of_inet_addr ip) port
+           in
+           Error err
          | Tls_lwt.Tls_failure f ->
-           Error (Printf.sprintf "TLS failure %s\n" (Tls.Engine.string_of_failure f)))
+           let err = Tls.Engine.string_of_failure f in
+           Error (Printf.sprintf "TLS failure %s" err))
   in
   let reconnect k msg =
     connect () >>= function
@@ -52,12 +57,16 @@ let tcp_tls_reporter ?hostname ip ?(port = 6514) ~cacert ~cert ~priv_key ?(frami
             | Unix.Unix_error (e, f, _) ->
               let err = Unix.error_message e in
               Printf.eprintf "error %s in function %s, reconnecting\n" err f ;
-              Lwt.catch (fun () -> Tls_lwt.Unix.close t) (fun _ -> Lwt.return_unit) >>= fun () ->
+              Lwt.catch
+                (fun () -> Tls_lwt.Unix.close t)
+                (fun _ -> Lwt.return_unit) >>= fun () ->
               tls := None ;
               reconnect send omsg
             | Tls_lwt.Tls_failure f ->
               Printf.eprintf "TLS error %s\n" (Tls.Engine.string_of_failure f) ;
-              Lwt.catch (fun () -> Tls_lwt.Unix.close t) (fun _ -> Lwt.return_unit) >>= fun () ->
+              Lwt.catch
+                (fun () -> Tls_lwt.Unix.close t)
+                (fun _ -> Lwt.return_unit) >>= fun () ->
               tls := None ;
               reconnect send omsg)
     in
@@ -66,7 +75,8 @@ let tcp_tls_reporter ?hostname ip ?(port = 6514) ~cacert ~cert ~priv_key ?(frami
 (*
 let main () =
   let lo = Unix.inet_addr_of_string "127.0.0.1" in
-  tcp_tls_reporter lo ~cacert:"cacert.pem" ~cert:"client.pem" ~priv_key:"client.key" ()
+  tcp_tls_reporter lo
+    ~cacert:"cacert.pem" ~cert:"client.pem" ~priv_key:"client.key" ()
   >>= function
   | Error e -> print_endline e ; Lwt.return_unit
   | Ok r ->
