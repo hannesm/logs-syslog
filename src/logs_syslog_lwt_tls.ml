@@ -4,7 +4,7 @@ open Logs_syslog_lwt_common
 open Logs_syslog
 
 let tcp_tls_reporter
-    ?hostname ip ?(port = 6514) ~cacert ~cert ~priv_key ?(framing = `Count) () =
+    ?hostname ip ?(port = 6514) ~cacert ~cn ~cert ~priv_key ?(framing = `Count) () =
   let sa = Lwt_unix.ADDR_INET (ip, port) in
   let tls = ref None in
   X509_lwt.private_of_pems ~cert ~priv_key >>= fun priv ->
@@ -20,7 +20,7 @@ let tcp_tls_reporter
     Lwt.catch
       (fun () ->
          Lwt_unix.connect sock sa >>= fun () ->
-         Tls_lwt.Unix.client_of_fd conf ~host:"" sock >|= fun t ->
+         Tls_lwt.Unix.client_of_fd conf ~host:cn sock >|= fun t ->
          tls := Some t ;
          Ok ())
       (fun exn ->
