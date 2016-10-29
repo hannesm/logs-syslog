@@ -65,6 +65,7 @@ val message :
   host:string ->
   source:string ->
   tags:Logs.Tag.set ->
+  ?header:string ->
   Logs.level ->
   Ptime.t ->
   string ->

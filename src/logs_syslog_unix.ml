@@ -5,12 +5,12 @@ let syslog_report host send =
   let report src level ~over k msgf =
     let source = Logs.Src.name src in
     let timestamp = Ptime_clock.now () in
-    let k tags _ =
-      let msg = message ~host ~source ~tags level timestamp (flush ()) in
+    let k tags ?header _ =
+      let msg = message ~host ~source ~tags ?header level timestamp (flush ()) in
       send (Syslog_message.encode msg) ; over () ; k ()
     in
-    msgf @@ fun ?header:_h ?(tags = Logs.Tag.empty) fmt ->
-    Format.kfprintf (k tags) ppf fmt
+    msgf @@ fun ?header ?(tags = Logs.Tag.empty) fmt ->
+    Format.kfprintf (k tags ?header) ppf fmt
   in
   { Logs.report }
 
