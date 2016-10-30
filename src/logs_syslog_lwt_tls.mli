@@ -13,8 +13,7 @@
     connection.  Each message is prepended by its length, encoded as decimal
     integer, as specified in {{:https://tools.ietf.org/html/rfc5125}RFC 5125}.
     The default value for [hostname] is [Lwt_unix.gethostname ()], the default
-    value for [port] is 6514, [framing] defaults to prepending the length in
-    decimal. *)
+    value for [port] is 6514, [framing] appends a 0 byte by default. *)
 val tcp_tls_reporter : ?hostname:string -> Lwt_unix.inet_addr -> ?port:int ->
   cacert:string -> cn:string -> cert:string -> priv_key:string ->
   ?framing:Logs_syslog.framing -> unit ->

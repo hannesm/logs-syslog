@@ -15,7 +15,8 @@ val udp_reporter :
     instead.  If the TCP connection fails, the log message is reported to
     standard error, and attempts are made to re-establish the TCP connection.
     Each syslog message is terminated with a 0 byte.  The [hostname] default to
-    [Lwt_unix.gethostname ()], [port] to 514, [framing] to append a 0 byte. *)
+    [Lwt_unix.gethostname ()], [port] to 514, [framing] appends a 0 byte by
+    default. *)
 val tcp_reporter : ?hostname:string -> Lwt_unix.inet_addr -> ?port:int ->
   ?framing:Logs_syslog.framing -> unit ->
   (Logs.reporter, string) Result.result Lwt.t

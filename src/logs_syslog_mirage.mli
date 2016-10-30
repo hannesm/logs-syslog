@@ -22,7 +22,8 @@ module Tcp (C : V1.CLOCK) (TCP : V1_LWT.TCP) : sig
       TCP connection to the [remote_ip] fails, an [Error msg] is returned
       instead.  If the TCP connection fails, attempts are made to re-establish
       the TCP connection.  The [hostname] is part of each syslog message.  The
-      [port] defaults to 514, [framing] to append a 0 byte. *)
+      default value of [port] is 514, the default behaviour of [framing] is to
+      append a 0 byte. *)
   val create : TCP.t -> hostname:string -> TCP.ipaddr -> ?port:int ->
     ?framing:Logs_syslog.framing -> unit ->
     (Logs.reporter, string) Result.result TCP.io

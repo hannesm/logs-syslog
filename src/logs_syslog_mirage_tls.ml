@@ -6,7 +6,7 @@ module Tls (C : V1.CLOCK) (TCP : V1_LWT.TCP) (KV : V1_LWT.KV_RO) = struct
   module TLS = Tls_mirage.Make(TCP)
   module X509 = Tls_mirage.X509(KV)(C)
 
-  let create tcp kv ?keyname ~hostname dst ?(port = 6514) ?(framing = `Count) () =
+  let create tcp kv ?keyname ~hostname dst ?(port = 6514) ?(framing = `Null) () =
     let f = ref None in
     X509.authenticator kv `CAs >>= fun authenticator ->
     let certname = match keyname with None -> `Default | Some x -> `Name x in
@@ -44,6 +44,8 @@ module Tls (C : V1.CLOCK) (TCP : V1_LWT.TCP) (KV : V1_LWT.KV_RO) = struct
                | None -> invalid_arg "couldn't read time")
             send)
     | Error (`TCP _) -> Error "couldn't connect via TCP to log host"
-    | Error (`TLS _) -> Error "couldn't connect via TLS to log host"
+    | Error (`TLS (`Tls_alert a)) -> Error ("Received alert while connecting to log host via TLS,  " ^ Tls.Packet.alert_type_to_string a)
+    | Error (`TLS (`Tls_failure f)) -> Error ("Encountered TLS failure while connecting to log host via TLS,  " ^ Tls.Engine.string_of_failure f)
+    | Error (`TLS _) -> Error "Flow error while connecting to log host via TLS"
     | Error _ -> Error "couldn't connect to log host"
 end
