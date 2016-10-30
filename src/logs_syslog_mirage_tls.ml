@@ -6,10 +6,11 @@ module Tls (C : V1.CLOCK) (TCP : V1_LWT.TCP) (KV : V1_LWT.KV_RO) = struct
   module TLS = Tls_mirage.Make(TCP)
   module X509 = Tls_mirage.X509(KV)(C)
 
-  let create tcp kv ~hostname dst ?(port = 6514) ?(framing = `Count) () =
+  let create tcp kv ?keyname ~hostname dst ?(port = 6514) ?(framing = `Count) () =
     let f = ref None in
     X509.authenticator kv `CAs >>= fun authenticator ->
-    X509.certificate kv `Default >>= fun priv ->
+    let certname = match keyname with None -> `Default | Some x -> `Name x in
+    X509.certificate kv certname >>= fun priv ->
     let certificates = `Single priv in
     let conf = Tls.Config.client ~authenticator ~certificates () in
     let connect () =
