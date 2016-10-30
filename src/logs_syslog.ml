@@ -18,10 +18,14 @@ let ppf, flush =
 (* TODO: can we derive the facility from the source? *)
 let message ?(facility = Syslog_message.System_Daemons)
     ~host:hostname ~source ~tags ?header level timestamp message =
-  Logs.Tag.pp_set ppf tags ;
-  let tags = flush () in
+  let tags =
+    if Logs.Tag.is_empty tags then
+      ""
+    else
+      (Logs.Tag.pp_set ppf tags ;
+       " " ^ flush ())
+  in
   let hdr = match header with None -> "" | Some x -> " " ^ x in
-  let tags = if String.length tags > 0 then " " ^ tags else tags in
   let message = Printf.sprintf "%s%s%s %s" source tags hdr message
   and severity = slevel level
   in
