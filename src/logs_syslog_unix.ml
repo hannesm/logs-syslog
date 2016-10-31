@@ -31,18 +31,26 @@ let udp_reporter ?(hostname = Unix.gethostname ()) ip ?(port = 514) () =
   in
   syslog_report hostname send
 
-(* TODO: someone should call close at program exit *)
+type state =
+  | Disconnected
+  | Connecting
+  | Connected of Unix.file_descr
+
+let wait_time = 1
+
+(* TODO: should call close at program exit *)
+(* TODO: mutable state s is not locked during updates, there may be races! *)
 let tcp_reporter
     ?(hostname = Unix.gethostname ()) ip ?(port = 514) ?(framing = `Null) () =
   let sa = Unix.ADDR_INET (ip, port) in
-  let s = ref None in
+  let s = ref Disconnected in
   let connect () =
     let sock = Unix.(socket PF_INET SOCK_STREAM 0) in
     Unix.(setsockopt sock SO_REUSEADDR true) ;
     Unix.(setsockopt sock SO_KEEPALIVE true) ;
     try
       Unix.connect sock sa ;
-      s := Some sock;
+      s := Connected sock;
       Ok ()
     with
     | Unix.Unix_error (e, f, _) ->
@@ -53,6 +61,7 @@ let tcp_reporter
       Error err
   in
   let reconnect k msg =
+    s := Connecting ;
     match connect () with
     | Ok () -> k msg
     | Error e -> Printf.eprintf "%s while sending syslog message\n%s %s\n"
@@ -62,8 +71,9 @@ let tcp_reporter
   | Error e -> Error e
   | Ok () ->
     let rec send omsg = match !s with
-      | None -> reconnect send omsg
-      | Some sock ->
+      | Disconnected -> reconnect send omsg
+      | Connecting -> Unix.sleep wait_time ; send omsg
+      | Connected sock ->
         let msg = Bytes.of_string (frame_message omsg framing) in
         let len = Bytes.length msg in
         let rec aux idx =
@@ -76,8 +86,8 @@ let tcp_reporter
           | Unix.Unix_error (e, f, _) ->
             let err = Unix.error_message e in
             Printf.eprintf "error %s in function %s, reconnecting\n" err f ;
-            (try Unix.close sock with _ -> ()) ;
-            s := None ;
+            (try Unix.close sock with Unix.Unix_error _ -> ()) ;
+            s := Disconnected ;
             reconnect send omsg
         in
         aux 0
