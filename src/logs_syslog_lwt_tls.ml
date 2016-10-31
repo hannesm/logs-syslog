@@ -7,6 +7,7 @@ let tcp_tls_reporter
     ?hostname ip ?(port = 6514) ~cacert ~cn ~cert ~priv_key ?(framing = `Null) () =
   let sa = Lwt_unix.ADDR_INET (ip, port) in
   let tls = ref None in
+  let m = Lwt_mutex.create () in
   X509_lwt.private_of_pems ~cert ~priv_key >>= fun priv ->
   X509_lwt.authenticator (`Ca_file cacert) >>= fun authenticator ->
   let conf = Tls.Config.client ~authenticator ~certificates:(`Single priv) () in
@@ -35,25 +36,31 @@ let tcp_tls_reporter
            let err = Tls.Engine.string_of_failure f in
            Error (Printf.sprintf "TLS failure %s" err))
   in
+  (* called with mutex m hold by the current task *)
+  (* returns with unlocked mutex *)
   let reconnect k msg =
     connect () >>= function
-    | Ok () -> k msg
+    | Ok () -> Lwt_mutex.unlock m ; k msg
     | Error e ->
       Printf.eprintf "%s while sending syslog message\n%s %s\n"
         e (Ptime.to_rfc3339 (Ptime_clock.now ())) msg ;
+      Lwt_mutex.unlock m ;
       Lwt.return_unit
   in
   connect () >>= function
   | Error e -> Lwt.return (Error e)
   | Ok () ->
-    let rec send omsg = match !tls with
+    let rec send omsg =
+      Lwt_mutex.lock m >>= fun () ->
+      match !tls with
       | None -> reconnect send omsg
       | Some t ->
         let msg = Cstruct.of_string (frame_message omsg framing) in
         Lwt.catch
-          (fun () -> Tls_lwt.Unix.write t msg)
+          (fun () -> Tls_lwt.Unix.write t msg >|= fun () -> Lwt_mutex.unlock m)
           (function
-            | Unix.Unix_error (Unix.EAGAIN, _, _) -> send omsg
+            | Unix.Unix_error (Unix.EAGAIN, _, _) ->
+              Lwt_mutex.unlock m ; send omsg
             | Unix.Unix_error (e, f, _) ->
               let err = Unix.error_message e in
               Printf.eprintf "error %s in function %s, reconnecting\n" err f ;
