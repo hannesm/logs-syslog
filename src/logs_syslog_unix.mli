@@ -19,3 +19,22 @@ val udp_reporter : ?hostname:string -> Unix.inet_addr -> ?port:int -> unit ->
     [framing] to append a 0 byte. *)
 val tcp_reporter : ?hostname:string -> Unix.inet_addr -> ?port:int -> ?framing:Logs_syslog.framing -> unit ->
   (Logs.reporter, string) Result.result
+
+(** {1:unix_example Example usage}
+
+    To install a Unix syslog reporter. sending via UDP to localhost, use the
+    following snippet:
+
+{[
+Logs.set_reporter (udp_reporter (Unix.inet_addr_of_string "127.0.0.1") ())
+]}
+
+    To install a reporter using TCP, use the following snippet:
+{[
+let () =
+  match tcp_reporter (Unix.inet_addr_of_string "127.0.0.1") () with
+  | Error e -> print_endline e
+  | Ok r -> Logs.set_reporter r
+]}
+
+*)

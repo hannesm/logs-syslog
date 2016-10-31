@@ -21,3 +21,26 @@ val tcp_reporter : ?hostname:string -> Lwt_unix.inet_addr -> ?port:int ->
   ?framing:Logs_syslog.framing -> unit ->
   (Logs.reporter, string) Result.result Lwt.t
 
+(** {1:lwt_example Example usage}
+
+    To install a Lwt syslog reporter, sending via UDP to localhost, use the
+    following snippet:
+{[
+let install_logger () =
+  udp_reporter (Unix.inet_addr_of_string "127.0.0.1") () >|= fun r ->
+  Logs.set_reporter r
+
+let _ = Lwt_main.run (install_logger ())
+]}
+
+    And via TCP:
+{[
+let install_logger () =
+  tcp_reporter (Unix.inet_addr_of_string "127.0.0.1") () >|= function
+    | Ok r -> Logs.set_reporter r
+    | Error e -> print_endline e
+
+let _ = Lwt_main.run (install_logger ())
+]}
+
+*)

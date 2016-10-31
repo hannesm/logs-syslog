@@ -19,3 +19,24 @@ module Tls (C : V1.CLOCK) (TCP : V1_LWT.TCP) (KV : V1_LWT.KV_RO) : sig
     TCP.ipaddr -> ?port:int -> ?framing:Logs_syslog.framing -> unit ->
     (Logs.reporter, string) Result.result TCP.io
 end
+
+(** {1:mirage_example Example usage}
+
+    To install a Mirage syslog reporter, sending via TLS to localhost, use the
+    following snippet:
+{[
+module Main (S:V1_LWT.STACKV4) (C:V1.CLOCK) (KEYS:V1_LWT.KV_RO)
+  module TLS  = Tls_mirage.Make(S.TCPV4)
+  module X509 = Tls_mirage.X509(KEYS)(C)
+
+  module LT = Logs_syslog_mirage_tls.Tls(C)(S.TCPV4)(KEYS)
+
+  let start s _ kv =
+    let ip = Ipaddr.V4.of_string_exn "127.0.0.1" in
+    LT.create (S.tcpv4 s) kv ~hostname ip () >>= function
+      | Ok r -> Logs.set_reporter r ; Lwt.return_unit
+      | Error e -> Lwt.fail_invalid_arg e
+end
+]}
+
+*)

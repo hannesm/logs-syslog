@@ -18,3 +18,21 @@ val tcp_tls_reporter : ?hostname:string -> Lwt_unix.inet_addr -> ?port:int ->
   cacert:string -> cn:string -> cert:string -> priv_key:string ->
   ?framing:Logs_syslog.framing -> unit ->
   (Logs.reporter, string) Result.result Lwt.t
+
+(** {1:lwt_tls_example Example usage}
+
+    To install a Lwt syslog reporter, sending via TLS to localhost, use the
+    following snippet (assuming you already have certificates, and the common
+    name of the collector is "log server"):
+{[
+let install_logger () =
+  tls_reporter (Unix.inet_addr_of_string "127.0.0.1")
+    ~cacert:"ca.pem" ~cn:"log server" ~cert:"log.pem" ~priv_key:"log.key"
+    () >|= function
+  | Ok r -> Logs.set_reporter r
+  | Error e -> print_endline e
+
+let _ = Lwt_main.run (install_logger ())
+]}
+
+*)

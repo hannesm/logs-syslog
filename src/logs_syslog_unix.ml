@@ -93,17 +93,3 @@ let tcp_reporter
         aux 0
     in
     Ok (syslog_report hostname send)
-
-(* example code *)
-(* let _ =
-   let lo = Unix.inet_addr_of_string "127.0.0.1" in
-   match tcp_reporter lo with
-   | Error e -> print_endline e
-   | Ok r -> Logs.set_reporter r ;
-     (* Logs.set_reporter (udp_reporter lo) ; *)
-     Logs.set_level ~all:true (Some Logs.Debug) ;
-     Logs.warn (fun l -> l "foobar") ;
-     Logs.err (fun l -> l "bar foofoobar") ;
-     Logs.info (fun l -> l "foofoobar") ;
-     Logs.debug (fun l -> l "debug foofoobar")
-*)
