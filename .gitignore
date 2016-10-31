@@ -16,3 +16,4 @@ main.ml
 *.key
 *.pem
 *.csr
+certs/
