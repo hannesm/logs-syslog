@@ -7,7 +7,7 @@
 (** TLS reporter *)
 module Tls (C : V1.CLOCK) (TCP : V1_LWT.TCP) (KV : V1_LWT.KV_RO) : sig
 
-  (** [create clock tcp kv ~keyname ~hostname ip ~port ~framing ()] is [Ok
+  (** [create tcp kv ~keyname ~hostname ip ~port ~framing ()] is [Ok
       reporter] or [Error msg].  Key material (ca-roots.crt, certificate chain,
       private key) are read from [kv] (using [keyname], defaults to [server]).
       The [reporter] sends log messages to [ip, port] via TLS.  If the initial

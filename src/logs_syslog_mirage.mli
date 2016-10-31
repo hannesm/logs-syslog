@@ -6,7 +6,7 @@
 module Udp (C : V1.CLOCK) (UDP : V1_LWT.UDP) : sig
 
   (* XXX: on failure (currently there is no failure), use a console! *)
-  (** [create clock udp ~hostname ip ~port ()] is [reporter], which sends log
+  (** [create udp ~hostname ip ~port ()] is [reporter], which sends log
       messages to [ip, port] via UDP.  The [hostname] is part of each syslog
       message.  The [port] defaults to 514. *)
   val create : UDP.t -> hostname:string -> UDP.ipaddr -> ?port:int -> unit ->
@@ -17,7 +17,7 @@ end
 module Tcp (C : V1.CLOCK) (TCP : V1_LWT.TCP) : sig
 
   (* XXX: on failure (currently there is no failure), use a console! *)
-  (** [create clock tcp ~hostname ip ~port ()] is [Ok reporter] or [Error msg].
+  (** [create tcp ~hostname ip ~port ()] is [Ok reporter] or [Error msg].
       The [reporter] sends log messages to [ip, port] via TCP.  If the initial
       TCP connection to the [remote_ip] fails, an [Error msg] is returned
       instead.  If the TCP connection fails, attempts are made to re-establish
