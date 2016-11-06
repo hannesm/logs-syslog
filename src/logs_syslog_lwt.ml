@@ -6,21 +6,17 @@ open Logs_syslog
 let udp_reporter ?hostname ip ?(port = 514) () =
   let sa = Lwt_unix.ADDR_INET (ip, port) in
   let s = Lwt_unix.(socket PF_INET SOCK_DGRAM 0) in
-  let m = Lwt_mutex.create () in
   let rec send msg =
     Lwt.catch (fun () ->
-        Lwt_mutex.lock m >>= fun () ->
         let b = Bytes.of_string msg in
-        Lwt_unix.sendto s b 0 (String.length msg) [] sa >|= fun _ ->
-        Lwt_mutex.unlock m)
+        Lwt_unix.sendto s b 0 (String.length msg) [] sa >|= fun _ -> ())
       (function
-        | Unix.Unix_error (Unix.EAGAIN, _, _) -> Lwt_mutex.unlock m ; send msg
+        | Unix.Unix_error (Unix.EAGAIN, _, _) -> send msg
         | Unix.Unix_error (e, f, _) ->
           Printf.eprintf "error in %s %s while sending to %s:%d\n%s %s\n"
             f (Unix.error_message e) (Unix.string_of_inet_addr ip) port
             (Ptime.to_rfc3339 (Ptime_clock.now ()))
             msg ;
-          Lwt_mutex.unlock m ;
           Lwt.return_unit)
   in
   (match hostname with
