@@ -36,10 +36,11 @@ let tcp_tls_reporter
            let err = Tls.Engine.string_of_failure f in
            Error (Printf.sprintf "TLS failure %s" err))
   in
-  (* called with mutex m hold by the current task *)
-  (* returns with unlocked mutex *)
   let reconnect k msg =
-    connect () >>= function
+    Lwt_mutex.lock m >>= fun () ->
+    (match !tls with
+     | None -> connect ()
+     | Some _ -> Lwt.return (Ok ())) >>= function
     | Ok () -> Lwt_mutex.unlock m ; k msg
     | Error e ->
       Printf.eprintf "%s while sending syslog message\n%s %s\n"
@@ -51,32 +52,33 @@ let tcp_tls_reporter
   | Error e -> Lwt.return (Error e)
   | Ok () ->
     let rec send omsg =
-      Lwt_mutex.lock m >>= fun () ->
       match !tls with
       | None -> reconnect send omsg
       | Some t ->
         let msg = Cstruct.of_string (frame_message omsg framing) in
         Lwt.catch
-          (fun () -> Tls_lwt.Unix.write t msg >|= fun () -> Lwt_mutex.unlock m)
+          (fun () -> Tls_lwt.Unix.write t msg)
           (function
-            | Unix.Unix_error (Unix.EAGAIN, _, _) ->
-              Lwt_mutex.unlock m ; send omsg
+            | Unix.Unix_error (Unix.EAGAIN, _, _) -> send omsg
             | Unix.Unix_error (e, f, _) ->
+              tls := None ;
               let err = Unix.error_message e in
               Printf.eprintf "error %s in function %s, reconnecting\n" err f ;
               Lwt.catch
                 (fun () -> Tls_lwt.Unix.close t)
                 (fun _ -> Lwt.return_unit) >>= fun () ->
-              tls := None ;
               reconnect send omsg
             | Tls_lwt.Tls_failure f ->
+              tls := None ;
               Printf.eprintf "TLS error %s\n" (Tls.Engine.string_of_failure f) ;
               Lwt.catch
                 (fun () -> Tls_lwt.Unix.close t)
                 (fun _ -> Lwt.return_unit) >>= fun () ->
-              tls := None ;
               reconnect send omsg)
     in
+    at_exit (fun () -> match !tls with
+        | None -> ()
+        | Some tls -> Lwt.async (fun () -> Tls_lwt.Unix.close tls)) ;
     Lwt.return (Ok (syslog_report_common host Ptime_clock.now send))
 
 (*
