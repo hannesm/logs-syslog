@@ -36,10 +36,8 @@ type state =
   | Connecting
   | Connected of Unix.file_descr
 
-let wait_time = 1
+let wait_time = 0.01
 
-(* TODO: should call close at program exit *)
-(* TODO: mutable state s is not locked during updates, there may be races! *)
 let tcp_reporter
     ?(hostname = Unix.gethostname ()) ip ?(port = 514) ?(framing = `Null) () =
   let sa = Unix.ADDR_INET (ip, port) in
@@ -72,7 +70,7 @@ let tcp_reporter
   | Ok () ->
     let rec send omsg = match !s with
       | Disconnected -> reconnect send omsg
-      | Connecting -> Unix.sleep wait_time ; send omsg
+      | Connecting -> let _ = Unix.select [] [] [] wait_time in send omsg
       | Connected sock ->
         let msg = Bytes.of_string (frame_message omsg framing) in
         let len = Bytes.length msg in
@@ -92,4 +90,5 @@ let tcp_reporter
         in
         aux 0
     in
+    at_exit (fun () -> match !s with Connected x -> Unix.close x | _ -> ()) ;
     Ok (syslog_report hostname send)
