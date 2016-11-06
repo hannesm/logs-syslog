@@ -3,14 +3,13 @@
     Please read {!Logs_syslog} first. *)
 
 (** UDP syslog *)
-module Udp (C : V1.CLOCK) (UDP : V1_LWT.UDP) : sig
-
-  (* XXX: on failure (currently there is no failure), use a console! *)
-  (** [create udp ~hostname ip ~port ()] is [reporter], which sends log
-      messages to [ip, port] via UDP.  The [hostname] is part of each syslog
-      message.  The [port] defaults to 514. *)
-  val create : UDP.t -> hostname:string -> UDP.ipaddr -> ?port:int -> unit ->
-    Logs.reporter
+module Udp (C : V1_LWT.CONSOLE) (CLOCK : V1.CLOCK) (UDP : V1_LWT.UDP) : sig
+  (** [create c udp ~hostname ip ~port ()] is [reporter], which sends log
+      messages to [ip, port] via UDP.  Upon failure, a message is emitted to the
+      console [c].  The [hostname] is part of each syslog message.  The [port]
+      defaults to 514. *)
+  val create : C.t -> UDP.t -> hostname:string -> UDP.ipaddr -> ?port:int ->
+    unit -> Logs.reporter
 end
 
 (** TCP syslog *)

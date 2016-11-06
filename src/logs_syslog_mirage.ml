@@ -1,19 +1,18 @@
-module Udp (C : V1.CLOCK) (UDP : V1_LWT.UDP) = struct
+module Udp (C : V1_LWT.CONSOLE) (CLOCK : V1.CLOCK) (UDP : V1_LWT.UDP) = struct
   (* need a console for emergency messages (temporary network issues) *)
 
-  let create udp ~hostname dest_ip ?(port = 514) () =
-    let m = Lwt_mutex.create () in
+  let create c udp ~hostname dest_ip ?(port = 514) () =
     Logs_syslog_lwt_common.syslog_report_common
       hostname
       (* This API for PCLOCK is inconvenient (overengineered?) *)
-      (fun () -> match Ptime.of_float_s (C.time ()) with
+      (fun () -> match Ptime.of_float_s (CLOCK.time ()) with
          | None -> invalid_arg "couldn't read time"
          | Some t -> t)
       (fun s ->
-         (* in another world, we will need to handle potential errors, such as
-            'no route to host' *)
-         Lwt_mutex.with_lock m (fun () ->
-             UDP.write ~dest_ip ~dest_port:port udp (Cstruct.of_string s)))
+         Lwt.catch (fun () ->
+             UDP.write ~dest_ip ~dest_port:port udp (Cstruct.of_string s))
+           (fun e -> C.log_s c (Printf.sprintf "error %s while sending %s"
+                                  (Printexc.to_string e) s)))
 end
 
 module Tcp (C : V1.CLOCK) (TCP : V1_LWT.TCP) = struct
