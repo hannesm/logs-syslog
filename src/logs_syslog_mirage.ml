@@ -40,7 +40,7 @@ module Tcp (C : V1.CLOCK) (TCP : V1_LWT.TCP) = struct
       match !f with
       | None -> reconnect send omsg
       | Some flow ->
-        let msg = Cstruct.(of_string (frame_message omsg `Null)) in
+        let msg = Cstruct.(of_string (frame_message omsg framing)) in
         TCP.write flow msg >>= function
         | `Ok () -> Lwt_mutex.unlock m ; Lwt.return_unit
         | `Eof | `Error _ -> f := None ; reconnect send omsg
