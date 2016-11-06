@@ -45,9 +45,10 @@ let tcp_reporter ?hostname ip ?(port = 514) ?(framing = `Null) () =
          Lwt.return (Error err))
   in
   let reconnect k msg =
-    (* always called with mutex m being locked by the current task! *)
-    (* before returning, need to unlock! *)
-    connect () >>= function
+    Lwt_mutex.lock m >>= fun () ->
+    (match !s with
+     | None -> connect ()
+     | Some _ -> Lwt.return (Ok ())) >>= function
     | Ok () -> Lwt_mutex.unlock m ; k msg
     | Error e ->
       Printf.eprintf "%s while sending syslog message\n%s %s\n"
@@ -59,33 +60,32 @@ let tcp_reporter ?hostname ip ?(port = 514) ?(framing = `Null) () =
   | Error e -> Lwt.return (Error e)
   | Ok () ->
     let rec send omsg =
-      Lwt_mutex.lock m >>= fun () ->
       match !s with
       | None -> reconnect send omsg
       | Some sock ->
         let msg = Bytes.of_string (frame_message omsg framing) in
         let len = Bytes.length msg in
         let rec aux idx =
-          Lwt.catch (fun () ->
-              let should = len - idx in
-              Lwt_unix.send sock msg idx (len - idx) [] >>= fun n ->
-              if n = should then
-                (Lwt_mutex.unlock m ; Lwt.return_unit)
-              else
-                aux (idx + n))
-            (function
-              | Unix.Unix_error (Unix.EAGAIN, _, _) ->
-                Lwt_mutex.unlock m ; send omsg
-              | Unix.Unix_error (e, f, _) ->
-                let err = Unix.error_message e in
-                Printf.eprintf "error %s in function %s, reconnecting\n"
-                  err f ;
-                Lwt.catch
-                  (fun () -> Lwt_unix.close sock)
-                  (function Unix.Unix_error _ -> Lwt.return_unit) >>= fun () ->
-                s := None ;
-                reconnect send omsg)
-            in
-            aux 0
+          let should = len - idx in
+          (Lwt.catch (fun () -> Lwt_unix.send sock msg idx (len - idx) [])
+             (function
+               | Unix.Unix_error (Unix.EAGAIN, _, _) -> Lwt.return idx
+               | Unix.Unix_error (e, f, _) ->
+                 s := None ;
+                 let err = Unix.error_message e in
+                 Printf.eprintf "error %s in function %s, reconnecting\n" err f ;
+                 Lwt.catch
+                   (fun () -> Lwt_unix.close sock)
+                   (function Unix.Unix_error _ -> Lwt.return_unit) >>= fun () ->
+                 reconnect send omsg >|= fun () -> should)) >>= fun n ->
+          if n = should then
+            Lwt.return_unit
+          else
+            aux (idx + n)
+        in
+        aux 0
     in
+    at_exit (fun () -> match !s with
+        | None -> ()
+        | Some x -> Lwt.async (fun () -> Lwt_unix.close x)) ;
     Lwt.return (Ok (syslog_report_common host Ptime_clock.now send))
