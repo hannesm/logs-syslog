@@ -1,11 +1,12 @@
 open Lwt.Infix
 
-module Main (C:V1.CLOCK) (T:V1_LWT.TIME) (S:V1_LWT.STACKV4) = struct
+module Main (C:V1_LWT.CONSOLE) (CLOCK:V1.CLOCK) (T:V1_LWT.TIME) (S:V1_LWT.STACKV4) = struct
   module U = S.UDPV4
-  module LU = Logs_syslog_mirage.Udp(C)(U)
+  module LU = Logs_syslog_mirage.Udp(C)(CLOCK)(U)
 
-  let start _c _t s =
-    let r = LU.create (S.udpv4 s) ~hostname:"MirageOS.example" (Ipaddr.V4.of_string_exn "127.0.0.1") () in
+  let start c _clock _time s =
+    let ip = Ipaddr.V4.of_string_exn "127.0.0.1" in
+    let r = LU.create c (S.udpv4 s) ~hostname:"MirageOS.example" ip () in
     Logs.set_reporter r ;
     Logs.set_level ~all:true (Some Logs.Debug) ;
     let rec go () =
