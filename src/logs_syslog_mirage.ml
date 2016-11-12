@@ -10,8 +10,8 @@ module Udp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (UDP : V1_LWT.UDPV4) = struc
       (fun s ->
          Lwt.catch (fun () ->
              UDP.write ~dst ~dst_port:port udp (Cstruct.of_string s))
-           (fun e -> C.log_s c (Printf.sprintf "error %s %s, message: %s"
-                                  (Printexc.to_string e) dsts s)))
+           (fun e -> C.log c (Printf.sprintf "error %s %s, message: %s"
+                                (Printexc.to_string e) dsts s)))
 end
 
 module Tcp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) = struct
@@ -49,7 +49,7 @@ module Tcp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) = struc
       | Ok () -> Lwt_mutex.unlock m ; k msg
       | Error e ->
         Lwt_mutex.unlock m ;
-        C.log_s c (Printf.sprintf "error %s, message %s" e msg)
+        C.log c (Printf.sprintf "error %s, message %s" e msg)
     in
     let rec send omsg =
       match !f with
@@ -61,14 +61,14 @@ module Tcp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) = struc
             | `Ok () -> Lwt.return_unit
             | `Eof ->
               f := None ;
-              C.log_s c ("EOF " ^ dsts ^ ", reconnecting") >>= fun () ->
+              C.log c ("EOF " ^ dsts ^ ", reconnecting") >>= fun () ->
               reconnect send omsg
             | `Error e ->
               f := None ;
               let m =
                 Printf.sprintf "error %s %s, reconnecting" (err_to_string e) dsts
               in
-              C.log_s c m >>= fun () ->
+              C.log c m >>= fun () ->
               reconnect send omsg)
           (fun e ->
              f := None ;
@@ -76,7 +76,7 @@ module Tcp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) = struc
                let exc = Printexc.to_string e in
                Printf.sprintf "exception %s %s, reconnecting" exc dsts
              in
-             C.log_s c msg >>= fun () ->
+             C.log c msg >>= fun () ->
              reconnect send omsg)
     in
     connect () >|= function
