@@ -43,7 +43,7 @@ package "lwt" (
 package "mirage" (
   description = "Mirage syslog reporter"
   version = "%%VERSION_NUM%%"
-  requires = "logs-syslog logs syslog-message ipaddr lwt mirage-types cstruct"
+  requires = "logs-syslog logs syslog-message ipaddr lwt mirage-types mirage-types-lwt cstruct"
   archive(byte) = "logs-syslog-mirage.cma"
   archive(native) = "logs-syslog-mirage.cmxa"
   plugin(byte) = "logs-syslog-mirage.cma"
@@ -53,7 +53,7 @@ package "mirage" (
   package "tls" (
     description = "Mirage TLS syslog reporter"
     version = "%%VERSION_NUM%%"
-    requires = "logs-syslog logs-syslog.mirage logs syslog-message ipaddr lwt mirage-types cstruct x509 tls tls.mirage mirage-runtime"
+    requires = "logs-syslog logs-syslog.mirage logs syslog-message ipaddr lwt mirage-types mirage-types-lwt cstruct x509 tls tls.mirage mirage-runtime"
     archive(byte) = "logs-syslog-mirage-tls.cma"
     archive(native) = "logs-syslog-mirage-tls.cmxa"
     plugin(byte) = "logs-syslog-mirage-tls.cma"

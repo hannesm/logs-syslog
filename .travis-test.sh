@@ -5,5 +5,5 @@ eval `opam config env`
 opam install mirage
 cd example
 mirage configure -t unix
+make depend
 make
-

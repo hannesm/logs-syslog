@@ -7,11 +7,10 @@ env:
     - PACKAGE="logs-syslog"
     - EXTRA_REMOTES="https://github.com/mirage/mirage-dev.git"
   matrix:
-    - OCAML_VERSION=4.02
     - OCAML_VERSION=4.03
     - OCAML_VERSION=4.04
-    - OCAML_VERSION=4.02 DEPOPTS="lwt x509 tls" TESTS=false
-    - OCAML_VERSION=4.02 DEPOPTS="mirage-types lwt cstruct ipaddr io-page" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
-    - OCAML_VERSION=4.02 DEPOPTS="mirage-types lwt cstruct ipaddr io-page x509 tls" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
+    - OCAML_VERSION=4.03 DEPOPTS="lwt x509 tls" TESTS=false
+    - OCAML_VERSION=4.03 DEPOPTS="mirage-types lwt cstruct ipaddr io-page" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
+    - OCAML_VERSION=4.04 DEPOPTS="mirage-types lwt cstruct ipaddr io-page x509 tls" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
 notifications:
   email: false
