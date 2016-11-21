@@ -1,7 +1,7 @@
 PKG logs syslog-message ptime ptime.clock.os ipaddr
 PKG x509 lwt tls tls.lwt cstruct
 PKG mirage-types mirage-types.lwt
-PKG duration mirage.runtime
+PKG duration mirage-runtime
 
 S src
 

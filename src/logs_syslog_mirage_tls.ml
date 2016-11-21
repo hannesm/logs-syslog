@@ -6,16 +6,6 @@ module Tls (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) (KV : V
   module TLS = Tls_mirage.Make(TCP)
   module X509 = Tls_mirage.X509(KV)(CLOCK)
 
-  let tcp_err_to_string = function
-    | `Unknown s -> s
-    | `Timeout -> "timeout"
-    | `Refused -> "refused"
-
-  let err_to_string = function
-    | `Tls_alert a -> Tls.Packet.alert_type_to_string a
-    | `Tls_failure f -> Tls.Engine.string_of_failure f
-    | `Flow e -> tcp_err_to_string e
-
   let create c clock tcp kv ?keyname ~hostname dst ?(port = 6514) ?(framing = `Null) () =
     let f = ref None in
     let dsts =
@@ -28,21 +18,18 @@ module Tls (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) (KV : V
     let certificates = `Single priv in
     let conf = Tls.Config.client ~authenticator ~certificates () in
     let connect () =
-      Lwt.catch (fun () ->
-          TCP.create_connection tcp (dst, port) >>= function
-          | `Error e ->
-            let err = Printf.sprintf "error %s %s" (tcp_err_to_string e) dsts in
-            Lwt.return (Error err)
-          | `Ok flow ->
-            TLS.client_of_flow conf flow >|= function
-            | `Ok tlsflow -> f := Some tlsflow ; Ok ()
-            | `Eof -> Error ("EOF " ^ dsts)
-            | `Error e -> Error ("error " ^ err_to_string e ^ " " ^ dsts))
-        (fun e ->
-           let s = Printf.sprintf "exception %s %s"
-               (Printexc.to_string e) dsts
-           in
-           Lwt.return (Error s))
+      TCP.create_connection tcp (dst, port) >>= function
+      | Error e ->
+        Mirage_pp.pp_tcp_error Format.str_formatter e ;
+        let err = Printf.sprintf "error %s %s" (Format.flush_str_formatter ()) dsts in
+        Lwt.return (Error err)
+      | Ok flow ->
+        TLS.client_of_flow conf flow >|= function
+        | Ok tlsflow -> f := Some tlsflow ; Ok ()
+        | Error e ->
+          Mirage_pp.pp_flow_write_error Format.str_formatter e ;
+          let err = Printf.sprintf "error %s %s" (Format.flush_str_formatter ()) dsts in
+          Error err
     in
     let reconnect k msg =
       Lwt_mutex.lock m >>= fun () ->
@@ -59,28 +46,16 @@ module Tls (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) (KV : V
       | None -> reconnect send omsg
       | Some flow ->
         let msg = Cstruct.of_string (frame_message omsg framing) in
-        Lwt.catch (fun () ->
-            TLS.write flow msg >>= function
-            | `Ok () -> Lwt.return_unit
-            | `Eof ->
-              f := None ;
-              C.log c ("EOF " ^ dsts ^ ", reconnecting") >>= fun () ->
-              reconnect send omsg
-            | `Error e ->
-              f := None ;
-              let msg =
-                Printf.sprintf "error %s %s, reconnecting" (err_to_string e) dsts
-              in
-              C.log c msg >>= fun () ->
-              reconnect send omsg)
-          (fun e ->
-             f := None ;
-             let msg =
-               let exc = Printexc.to_string e in
-               Printf.sprintf "exception %s %s, reconnecting" exc dsts
-             in
-             C.log c msg >>= fun () ->
-             reconnect send omsg)
+        TLS.write flow msg >>= function
+        | Ok () -> Lwt.return_unit
+        | Error e ->
+          f := None ;
+          Mirage_pp.pp_flow_write_error Format.str_formatter e ;
+          let err = Printf.sprintf "error %s %s, reconnecting"
+              (Format.flush_str_formatter ()) dsts
+          in
+          C.log c err >>= fun () ->
+          reconnect send omsg
     in
     connect () >|= function
     | Ok () ->

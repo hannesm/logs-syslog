@@ -12,6 +12,7 @@ depends: [
   "ocamlfind" {build}
   "ocamlbuild" {build}
   "topkg" {build}
+  "mirage-runtime"
   "logs"
   "ptime"
   "syslog-message" {>= "0.0.2"}
