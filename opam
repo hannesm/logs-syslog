@@ -22,6 +22,10 @@ depopts: [
   "lwt" "x509" "tls" "mirage-types" "cstruct" "ipaddr" "io-page"
 ]
 
+conflicts: [
+  "mirage-types" {>= "3.0.0"}
+]
+
 build: [
   [ "ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%"
     "--with-lwt" "%{lwt+x509+tls:installed}%"
