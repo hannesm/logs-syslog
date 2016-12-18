@@ -1,7 +1,7 @@
 open Logs_syslog
 open Result
 
-let syslog_report host send =
+let syslog_report host len send =
   let report src level ~over k msgf =
     let source = Logs.Src.name src in
     let timestamp = Ptime_clock.now () in
@@ -9,14 +9,18 @@ let syslog_report host send =
       let msg =
         message ~host ~source ~tags ?header level timestamp (flush ())
       in
-      send (Syslog_message.encode msg) ; over () ; k ()
+      send (Syslog_message.encode ~len msg) ; over () ; k ()
     in
     msgf @@ fun ?header ?(tags = Logs.Tag.empty) fmt ->
     Format.kfprintf (k tags ?header) ppf fmt
   in
   { Logs.report }
 
-let udp_reporter ?(hostname = Unix.gethostname ()) ip ?(port = 514) () =
+let udp_reporter
+    ?(hostname = Unix.gethostname ())
+    ip
+    ?(port = 514)
+    ?(truncate = 65535) () =
   let sa = Unix.ADDR_INET (ip, port) in
   let s = Unix.(socket PF_INET SOCK_DGRAM 0) in
   let rec send msg =
@@ -29,7 +33,7 @@ let udp_reporter ?(hostname = Unix.gethostname ()) ip ?(port = 514) () =
         (Ptime.to_rfc3339 (Ptime_clock.now ()))
         msg
   in
-  syslog_report hostname send
+  syslog_report hostname truncate send
 
 type state =
   | Disconnected
@@ -39,7 +43,11 @@ type state =
 let wait_time = 0.01
 
 let tcp_reporter
-    ?(hostname = Unix.gethostname ()) ip ?(port = 514) ?(framing = `Null) () =
+    ?(hostname = Unix.gethostname ())
+    ip
+    ?(port = 514)
+    ?(truncate = 0)
+    ?(framing = `Null) () =
   let sa = Unix.ADDR_INET (ip, port) in
   let s = ref Disconnected in
   let connect () =
@@ -91,4 +99,4 @@ let tcp_reporter
         aux 0
     in
     at_exit (fun () -> match !s with Connected x -> Unix.close x | _ -> ()) ;
-    Ok (syslog_report hostname send)
+    Ok (syslog_report hostname truncate send)

@@ -1,6 +1,6 @@
 open Logs_syslog
 
-let syslog_report_common host now send =
+let syslog_report_common host len now send =
   let report src level ~over k msgf =
     let source = Logs.Src.name src in
     let timestamp = now () in
@@ -8,7 +8,7 @@ let syslog_report_common host now send =
       let msg =
         message ~host ~source ~tags ?header level timestamp (flush ())
       in
-      let bytes = Syslog_message.encode msg in
+      let bytes = Syslog_message.encode ~len msg in
       let unblock () = over () ; Lwt.return_unit in
       Lwt.finalize (fun () -> send bytes) unblock |> Lwt.ignore_result ; k ()
     in

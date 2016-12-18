@@ -4,25 +4,29 @@
 
 (** UDP syslog *)
 module Udp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (UDPV4 : V1_LWT.UDPV4) : sig
-  (** [create c clock udp ~hostname ip ~port ()] is [reporter], which sends log
-      messages to [ip, port] via UDP.  Upon failure, a message is emitted to the
-      console [c].  The [hostname] is part of each syslog message.  The [port]
-      defaults to 514. *)
+  (** [create c clock udp ~hostname ip ~port ~truncate ()] is [reporter], which
+      sends log messages to [ip, port] via UDP.  Upon failure, a message is
+      emitted to the console [c].  Each message can be truncated: [truncate]
+      defaults to 65535 bytes.  The [hostname] is part of each syslog message.
+      The [port] defaults to 514. *)
   val create : C.t -> CLOCK.t -> UDPV4.t -> hostname:string ->
-    UDPV4.ipaddr -> ?port:int -> unit -> Logs.reporter
+    UDPV4.ipaddr -> ?port:int -> ?truncate:int -> unit -> Logs.reporter
 end
 
 (** TCP syslog *)
 module Tcp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCPV4 : V1_LWT.TCPV4) : sig
-  (** [create c clock tcp ~hostname ip ~port ()] is [Ok reporter] or [Error
-      msg].  The [reporter] sends log messages to [ip, port] via TCP.  If the
-      initial TCP connection to the [remote_ip] fails, an [Error msg] is
-      returned instead.  If the TCP connection fails, an error is logged to the
-      console [c] and attempts are made to re-establish the TCP connection.  The
-      [hostname] is part of each syslog message.  The default value of [port] is
-      514, the default behaviour of [framing] is to append a 0 byte. *)
+  (** [create c clock tcp ~hostname ip ~port ~truncate ~framing ()] is [Ok
+      reporter] or [Error msg].  The [reporter] sends log messages to [ip, port]
+      via TCP.  If the initial TCP connection to the [remote_ip] fails, an
+      [Error msg] is returned instead.  If the TCP connection fails, an error is
+      logged to the console [c] and attempts are made to re-establish the TCP
+      connection.  Each syslog message can be truncated, depending on [truncate]
+      (defaults to no truncating).  The [hostname] is part of each syslog
+      message.  The default value of [port] is 514, the default behaviour of
+      [framing] is to append a 0 byte. *)
   val create : C.t -> CLOCK.t -> TCPV4.t -> hostname:string ->
     TCPV4.ipaddr -> ?port:int ->
+    ?truncate:int ->
     ?framing:Logs_syslog.framing -> unit ->
     (Logs.reporter, string) Result.result TCPV4.io
 end

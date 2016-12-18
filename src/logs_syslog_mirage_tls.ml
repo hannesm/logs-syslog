@@ -6,7 +6,7 @@ module Tls (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) (KV : V
   module TLS = Tls_mirage.Make(TCP)
   module X509 = Tls_mirage.X509(KV)(CLOCK)
 
-  let create c clock tcp kv ?keyname ~hostname dst ?(port = 6514) ?(framing = `Null) () =
+  let create c clock tcp kv ?keyname ~hostname dst ?(port = 6514) ?(truncate = 0) ?(framing = `Null) () =
     let f = ref None in
     let dsts =
       Printf.sprintf "while writing to %s:%d" (Ipaddr.V4.to_string dst) port
@@ -61,6 +61,7 @@ module Tls (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) (KV : V
     | Ok () ->
       Ok (Logs_syslog_lwt_common.syslog_report_common
             hostname
+            truncate
             (fun () -> Ptime.v (CLOCK.now_d_ps clock))
             send)
     | Error e -> Error e

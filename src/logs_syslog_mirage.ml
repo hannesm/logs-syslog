@@ -2,12 +2,13 @@ open Lwt.Infix
 open Result
 
 module Udp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (UDP : V1_LWT.UDPV4) = struct
-  let create c clock udp ~hostname dst ?(port = 514) () =
+  let create c clock udp ~hostname dst ?(port = 514) ?(truncate = 65535) () =
     let dsts =
       Printf.sprintf "while writing to %s:%d" (Ipaddr.V4.to_string dst) port
     in
     Logs_syslog_lwt_common.syslog_report_common
       hostname
+      truncate
       (* This API for PCLOCK is inconvenient (overengineered?) *)
       (fun () -> Ptime.v (CLOCK.now_d_ps clock))
       (fun s ->
@@ -22,7 +23,7 @@ end
 module Tcp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) = struct
   open Logs_syslog
 
-  let create c clock tcp ~hostname dst ?(port = 514) ?(framing = `Null) () =
+  let create c clock tcp ~hostname dst ?(port = 514) ?(truncate = 0) ?(framing = `Null) () =
     let f = ref None in
     let dsts =
       Printf.sprintf "while writing to %s:%d" (Ipaddr.V4.to_string dst) port
@@ -62,6 +63,7 @@ module Tcp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) = struc
     | Ok () ->
       Ok (Logs_syslog_lwt_common.syslog_report_common
             hostname
+            truncate
             (fun () -> Ptime.v (CLOCK.now_d_ps clock))
             send)
     | Error e -> Error e
