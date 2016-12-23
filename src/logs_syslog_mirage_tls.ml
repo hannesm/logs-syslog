@@ -20,14 +20,14 @@ module Tls (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) (KV : V
     let connect () =
       TCP.create_connection tcp (dst, port) >>= function
       | Error e ->
-        Mirage_pp.pp_tcp_error Format.str_formatter e ;
+        TCP.pp_error Format.str_formatter e ;
         let err = Printf.sprintf "error %s %s" (Format.flush_str_formatter ()) dsts in
         Lwt.return (Error err)
       | Ok flow ->
         TLS.client_of_flow conf flow >|= function
         | Ok tlsflow -> f := Some tlsflow ; Ok ()
         | Error e ->
-          Mirage_pp.pp_flow_write_error Format.str_formatter e ;
+          TLS.pp_write_error Format.str_formatter e ;
           let err = Printf.sprintf "error %s %s" (Format.flush_str_formatter ()) dsts in
           Error err
     in
@@ -50,7 +50,7 @@ module Tls (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) (KV : V
         | Ok () -> Lwt.return_unit
         | Error e ->
           f := None ;
-          Mirage_pp.pp_flow_write_error Format.str_formatter e ;
+          TLS.pp_write_error Format.str_formatter e ;
           let err = Printf.sprintf "error %s %s, reconnecting"
               (Format.flush_str_formatter ()) dsts
           in

@@ -16,7 +16,7 @@ module Udp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (UDP : V1_LWT.UDPV4) = struc
          | Ok _ -> Lwt.return_unit
          | Error e ->
            Format.(fprintf str_formatter "error %a %s, message: %s"
-                     Mirage_pp.pp_udp_error e dsts s) ;
+                     UDP.pp_error e dsts s) ;
            C.log c (Format.flush_str_formatter ()))
 end
 
@@ -33,7 +33,7 @@ module Tcp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) = struc
       TCP.create_connection tcp (dst, port) >|= function
       | Ok flow -> f := Some flow ; Ok ()
       | Error e ->
-        Mirage_pp.pp_tcp_error Format.str_formatter e ;
+        TCP.pp_error Format.str_formatter e ;
         Error (Format.flush_str_formatter ())
     in
     let reconnect k msg =
@@ -55,7 +55,7 @@ module Tcp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) = struc
         | Ok () -> Lwt.return_unit
         | Error e ->
           f := None ;
-          Mirage_pp.pp_flow_write_error Format.str_formatter e ;
+          TCP.pp_write_error Format.str_formatter e ;
           C.log c (Format.flush_str_formatter () ^ " " ^ dsts ^ ", reconnecting") >>= fun () ->
           reconnect send omsg
     in
