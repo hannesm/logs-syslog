@@ -1,12 +1,14 @@
-module Tls (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) (KV : V1_LWT.KV_RO) = struct
+module Tls (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (STACK : V1_LWT.STACKV4) (KV : V1_LWT.KV_RO) = struct
   open Result
   open Lwt.Infix
   open Logs_syslog
 
+  module TCP = STACK.TCPV4
   module TLS = Tls_mirage.Make(TCP)
   module X509 = Tls_mirage.X509(KV)(CLOCK)
 
-  let create c clock tcp kv ?keyname ~hostname dst ?(port = 6514) ?(truncate = 0) ?(framing = `Null) () =
+  let create c clock stack kv ?keyname ~hostname dst ?(port = 6514) ?(truncate = 0) ?(framing = `Null) () =
+    let tcp = STACK.tcpv4 stack in
     let f = ref None in
     let dsts =
       Printf.sprintf "while writing to %s:%d" (Ipaddr.V4.to_string dst) port

@@ -3,7 +3,7 @@
     Please read {!Logs_syslog} first. *)
 
 (** TLS reporter *)
-module Tls (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) (KV : V1_LWT.KV_RO) : sig
+module Tls (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (STACK : V1_LWT.STACKV4) (KV : V1_LWT.KV_RO) : sig
 
   (** [create c clock tcp kv ~keyname ~hostname ip ~port ~truncate ~framing ()]
       is [Ok reporter] or [Error msg].  Key material (ca-roots.crt, certificate
@@ -15,9 +15,9 @@ module Tls (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCP : V1_LWT.TCPV4) (KV : V
       message can be truncated (to [truncate] bytes), default is to not
       truncate.  The [hostname] is part of each syslog message.  The [port]
       defaults to 6514, [framing] to appending a 0 byte.  *)
-  val create : C.t -> CLOCK.t -> TCP.t -> KV.t -> ?keyname:string -> hostname:string ->
-    TCP.ipaddr -> ?port:int -> ?truncate:int -> ?framing:Logs_syslog.framing -> unit ->
-    (Logs.reporter, string) Result.result TCP.io
+  val create : C.t -> CLOCK.t -> STACK.t -> KV.t -> ?keyname:string -> hostname:string ->
+    STACK.ipv4addr -> ?port:int -> ?truncate:int -> ?framing:Logs_syslog.framing -> unit ->
+    (Logs.reporter, string) Result.result STACK.io
 end
 
 (** {1:mirage_example Example usage}
@@ -29,11 +29,11 @@ module Main (C : V1_LWT.CONSOLE) (S : V1_LWT.STACKV4) (CLOCK : V1.CLOCK) (KEYS :
   module TLS  = Tls_mirage.Make(S.TCPV4)
   module X509 = Tls_mirage.X509(KEYS)(CLOCK)
 
-  module LT = Logs_syslog_mirage_tls.Tls(C)(CLOCK)(S.TCPV4)(KEYS)
+  module LT = Logs_syslog_mirage_tls.Tls(C)(CLOCK)(S)(KEYS)
 
   let start c s _ kv =
     let ip = Ipaddr.V4.of_string_exn "127.0.0.1" in
-    LT.create c (S.tcpv4 s) kv ~hostname ip () >>= function
+    LT.create c s kv ~hostname ip () >>= function
       | Ok r -> Logs.set_reporter r ; Lwt.return_unit
       | Error e -> Lwt.fail_invalid_arg e
 end

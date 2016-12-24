@@ -3,18 +3,18 @@
     Please read {!Logs_syslog} first. *)
 
 (** UDP syslog *)
-module Udp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (UDPV4 : V1_LWT.UDPV4) : sig
+module Udp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (STACK : V1_LWT.STACKV4) : sig
   (** [create c clock udp ~hostname ip ~port ~truncate ()] is [reporter], which
       sends log messages to [ip, port] via UDP.  Upon failure, a message is
       emitted to the console [c].  Each message can be truncated: [truncate]
       defaults to 65535 bytes.  The [hostname] is part of each syslog message.
       The [port] defaults to 514. *)
-  val create : C.t -> CLOCK.t -> UDPV4.t -> hostname:string ->
-    UDPV4.ipaddr -> ?port:int -> ?truncate:int -> unit -> Logs.reporter
+  val create : C.t -> CLOCK.t -> STACK.t -> hostname:string ->
+    STACK.ipv4addr -> ?port:int -> ?truncate:int -> unit -> Logs.reporter
 end
 
 (** TCP syslog *)
-module Tcp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCPV4 : V1_LWT.TCPV4) : sig
+module Tcp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (STACK : V1_LWT.STACKV4) : sig
   (** [create c clock tcp ~hostname ip ~port ~truncate ~framing ()] is [Ok
       reporter] or [Error msg].  The [reporter] sends log messages to [ip, port]
       via TCP.  If the initial TCP connection to the [remote_ip] fails, an
@@ -24,11 +24,11 @@ module Tcp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (TCPV4 : V1_LWT.TCPV4) : sig
       (defaults to no truncating).  The [hostname] is part of each syslog
       message.  The default value of [port] is 514, the default behaviour of
       [framing] is to append a 0 byte. *)
-  val create : C.t -> CLOCK.t -> TCPV4.t -> hostname:string ->
-    TCPV4.ipaddr -> ?port:int ->
+  val create : C.t -> CLOCK.t -> STACK.t -> hostname:string ->
+    STACK.ipv4addr -> ?port:int ->
     ?truncate:int ->
     ?framing:Logs_syslog.framing -> unit ->
-    (Logs.reporter, string) Result.result TCPV4.io
+    (Logs.reporter, string) Result.result STACK.io
 end
 
 (** {1:mirage_example Example usage}
@@ -37,11 +37,11 @@ end
     following snippet:
 {[
 module Main (C : V1_LWT.CONSOLE) (S : V1_LWT.STACKV4) (CLOCK : V1.CLOCK)
-  module LU = Logs_syslog_mirage.Udp(C)(CLOCK)(S.UDPV4)
+  module LU = Logs_syslog_mirage.Udp(C)(CLOCK)(S)
 
   let start c s _ =
     let ip = Ipaddr.V4.of_string_exn "127.0.0.1" in
-    let r = LU.create c (S.udpv4 s) ip ~hostname:"MirageOS.example" () in
+    let r = LU.create c s ip ~hostname:"MirageOS.example" () in
     Logs.set_reporter r ;
     Lwt.return_unit
 end
@@ -50,11 +50,11 @@ end
     The TCP transport is very similar:
 {[
 module Main (C : V1_LWT.CONSOLE) (S : V1_LWT.STACKV4) (CLOCK : V1.CLOCK)
-  module LT = Logs_syslog_mirage.Tcp(C)(CLOCK)(S.TCPV4)
+  module LT = Logs_syslog_mirage.Tcp(C)(CLOCK)(S)
 
   let start c s _ =
     let ip = Ipaddr.V4.of_string_exn "127.0.0.1" in
-    LT.create c (S.tcpv4 s) ip ~hostname:"MirageOS.example" () >>= function
+    LT.create c s ip ~hostname:"MirageOS.example" () >>= function
       | Ok r -> Logs.set_reporter r ; Lwt.return_unit
       | Error e -> Lwt.fail_invalid_arg e
 end
