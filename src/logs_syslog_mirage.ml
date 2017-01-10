@@ -1,7 +1,7 @@
 open Lwt.Infix
 open Result
 
-module Udp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (STACK : V1_LWT.STACKV4) = struct
+module Udp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack_lwt.V4) = struct
   module UDP = STACK.UDPV4
 
   let create c clock stack ~hostname dst ?(port = 514) ?(truncate = 65535) () =
@@ -22,7 +22,7 @@ module Udp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (STACK : V1_LWT.STACKV4) = s
            C.log c (Format.flush_str_formatter ()))
 end
 
-module Tcp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (STACK : V1_LWT.STACKV4) = struct
+module Tcp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack_lwt.V4) = struct
   open Logs_syslog
   module TCP = STACK.TCPV4
 

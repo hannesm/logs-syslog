@@ -1,6 +1,7 @@
 open Lwt.Infix
+open Mirage_types_lwt
 
-module Main (C:V1_LWT.CONSOLE) (CLOCK:V1.PCLOCK) (T:V1_LWT.TIME) (S:V1_LWT.STACKV4) = struct
+module Main (C : CONSOLE) (CLOCK : Mirage_types.PCLOCK) (T : TIME) (S: STACKV4) = struct
   module LU = Logs_syslog_mirage.Udp(C)(CLOCK)(S)
 
   let start c clock _time s =

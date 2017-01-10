@@ -3,7 +3,7 @@
     Please read {!Logs_syslog} first. *)
 
 (** UDP syslog *)
-module Udp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (STACK : Mirage_stack_lwt.V4) : sig
+module Udp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack_lwt.V4) : sig
   (** [create c clock udp ~hostname ip ~port ~truncate ()] is [reporter], which
       sends log messages to [ip, port] via UDP.  Upon failure, a message is
       emitted to the console [c].  Each message can be truncated: [truncate]
@@ -14,7 +14,7 @@ module Udp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (STACK : Mirage_stack_lwt.V4
 end
 
 (** TCP syslog *)
-module Tcp (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (STACK : V1_LWT.STACKV4) : sig
+module Tcp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack_lwt.V4) : sig
   (** [create c clock tcp ~hostname ip ~port ~truncate ~framing ()] is [Ok
       reporter] or [Error msg].  The [reporter] sends log messages to [ip, port]
       via TCP.  If the initial TCP connection to the [remote_ip] fails, an

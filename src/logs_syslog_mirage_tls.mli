@@ -3,7 +3,7 @@
     Please read {!Logs_syslog} first. *)
 
 (** TLS reporter *)
-module Tls (C : V1_LWT.CONSOLE) (CLOCK : V1.PCLOCK) (STACK : Mirage_stack_lwt.V4) (KV : V1_LWT.KV_RO) : sig
+module Tls (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack_lwt.V4) (KV : Mirage_kv_lwt.RO) : sig
 
   (** [create c clock tcp kv ~keyname ~hostname ip ~port ~truncate ~framing ()]
       is [Ok reporter] or [Error msg].  Key material (ca-roots.crt, certificate
