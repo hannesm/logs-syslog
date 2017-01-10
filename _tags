@@ -10,5 +10,5 @@ true : package(result syslog-message logs ptime)
 <src/logs_syslog_lwt.{ml,mli}>: package(ptime.clock.os lwt)
 <src/logs_syslog_lwt_tls.{ml,mli}>: package(ptime.clock.os lwt x509 tls tls.lwt cstruct)
 
-<src/logs_syslog_mirage.{ml,mli}>: package(lwt cstruct mirage-types-lwt cstruct ipaddr)
-<src/logs_syslog_mirage_tls.{ml,mli}>: package(lwt cstruct mirage-types-lwt tls.mirage x509 tls cstruct ipaddr)
+<src/logs_syslog_mirage.{ml,mli}>: package(lwt cstruct mirage-types-lwt cstruct ipaddr mirage-stack-lwt)
+<src/logs_syslog_mirage_tls.{ml,mli}>: package(lwt cstruct mirage-types-lwt tls.mirage x509 tls cstruct ipaddr mirage-stack-lwt)
