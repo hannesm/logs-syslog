@@ -36,7 +36,8 @@ end
     To install a Mirage syslog reporter, sending via UDP to localhost, use the
     following snippet:
 {[
-module Main (C : V1_LWT.CONSOLE) (S : V1_LWT.STACKV4) (CLOCK : V1.CLOCK)
+open Mirage_types_lwt
+module Main (C : CONSOLE) (S : STACKV4) (CLOCK : PCLOCK)
   module LU = Logs_syslog_mirage.Udp(C)(CLOCK)(S)
 
   let start c s _ =
@@ -49,7 +50,8 @@ end
 
     The TCP transport is very similar:
 {[
-module Main (C : V1_LWT.CONSOLE) (S : V1_LWT.STACKV4) (CLOCK : V1.CLOCK)
+open Mirage_types_lwt
+module Main (C : CONSOLE) (S : STACKV4) (CLOCK : PCLOCK)
   module LT = Logs_syslog_mirage.Tcp(C)(CLOCK)(S)
 
   let start c s _ =

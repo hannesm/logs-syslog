@@ -25,7 +25,8 @@ end
     To install a Mirage syslog reporter, sending via TLS to localhost, use the
     following snippet:
 {[
-module Main (C : V1_LWT.CONSOLE) (S : V1_LWT.STACKV4) (CLOCK : V1.CLOCK) (KEYS : V1_LWT.KV_RO)
+open Mirage_types_lwt
+module Main (C : CONSOLE) (S : STACKV4) (CLOCK : PCLOCK) (KEYS : KV_RO)
   module TLS  = Tls_mirage.Make(S.TCPV4)
   module X509 = Tls_mirage.X509(KEYS)(CLOCK)
 
