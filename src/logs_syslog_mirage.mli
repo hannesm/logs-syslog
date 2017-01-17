@@ -28,7 +28,7 @@ module Tcp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
     STACK.ipv4addr -> ?port:int ->
     ?truncate:int ->
     ?framing:Logs_syslog.framing -> unit ->
-    (Logs.reporter, string) Result.result STACK.io
+    (Logs.reporter, string) result STACK.io
 end
 
 (** {1:mirage_example Example usage}

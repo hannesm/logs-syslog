@@ -1,5 +1,4 @@
 open Lwt.Infix
-open Result
 open Logs_syslog_lwt_common
 open Logs_syslog
 

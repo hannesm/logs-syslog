@@ -1,6 +1,6 @@
 true : color(always), bin_annot, safe_string, principal
 true : warn(+A-4-44)
-true : package(result syslog-message logs ptime)
+true : package(syslog-message logs ptime)
 "src" : include
 
 <src/logs_syslog_unix.{ml,mli}>: package(ptime.clock.os)

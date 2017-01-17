@@ -1,5 +1,4 @@
 module Tls (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack_lwt.V4) (KV : Mirage_kv_lwt.RO) = struct
-  open Result
   open Lwt.Infix
   open Logs_syslog
 

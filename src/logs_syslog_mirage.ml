@@ -1,5 +1,4 @@
 open Lwt.Infix
-open Result
 
 module Udp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack_lwt.V4) = struct
   module UDP = STACK.UDPV4

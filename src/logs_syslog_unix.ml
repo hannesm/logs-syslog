@@ -1,5 +1,4 @@
 open Logs_syslog
-open Result
 
 let syslog_report host len send =
   let report src level ~over k msgf =

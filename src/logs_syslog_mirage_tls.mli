@@ -17,7 +17,7 @@ module Tls (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
       defaults to 6514, [framing] to appending a 0 byte.  *)
   val create : C.t -> CLOCK.t -> STACK.t -> KV.t -> ?keyname:string -> hostname:string ->
     STACK.ipv4addr -> ?port:int -> ?truncate:int -> ?framing:Logs_syslog.framing -> unit ->
-    (Logs.reporter, string) Result.result STACK.io
+    (Logs.reporter, string) result STACK.io
 end
 
 (** {1:mirage_example Example usage}

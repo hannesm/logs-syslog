@@ -24,7 +24,7 @@ val udp_reporter :
 val tcp_reporter : ?hostname:string -> Lwt_unix.inet_addr -> ?port:int ->
   ?truncate:int ->
   ?framing:Logs_syslog.framing -> unit ->
-  (Logs.reporter, string) Result.result Lwt.t
+  (Logs.reporter, string) result Lwt.t
 
 (** {1:lwt_example Example usage}
 

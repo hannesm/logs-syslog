@@ -24,7 +24,7 @@ val udp_reporter :
 val tcp_reporter : ?hostname:string -> Unix.inet_addr -> ?port:int ->
   ?truncate:int ->
   ?framing:Logs_syslog.framing -> unit ->
-  (Logs.reporter, string) Result.result
+  (Logs.reporter, string) result
 
 (** {1:unix_example Example usage}
 

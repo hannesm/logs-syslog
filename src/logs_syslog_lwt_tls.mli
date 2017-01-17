@@ -20,7 +20,7 @@ val tcp_tls_reporter : ?hostname:string -> Lwt_unix.inet_addr -> ?port:int ->
   cacert:string -> cert:string -> priv_key:string ->
   ?truncate:int ->
   ?framing:Logs_syslog.framing -> unit ->
-  (Logs.reporter, string) Result.result Lwt.t
+  (Logs.reporter, string) result Lwt.t
 
 (** {1:lwt_tls_example Example usage}
 
