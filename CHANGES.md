@@ -1,3 +1,9 @@
+## 0.1.0 (2017-01-18)
+
+- remove <4.03 compatibility
+- Mirage: use STACK instead of UDP/TCP
+- MirageOS3 support
+
 ## 0.0.2 (2016-11-06)
 
 - Unix, TCP: wait (if something else reconnects) for 10 ms instead of 1s

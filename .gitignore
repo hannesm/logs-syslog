@@ -3,15 +3,14 @@ _build/
 *.byte
 *.install
 
-mir-*
-*.xl
-*.xl.in
-*.xe
-*_libvirt.xml
-Makefile
-key_gen.ml
-log
-main.ml
+example/mirage-unikernel-*.opam
+example/.mirage.config
+example/Makefile
+example/key_gen.ml
+example/log
+example/main.ml
+example/myocamlbuild.ml
+example/syslog*
 
 *.key
 *.pem
