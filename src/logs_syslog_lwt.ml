@@ -10,7 +10,6 @@ let udp_reporter ?hostname ip ?(port = 514) ?(truncate = 65535) () =
         let b = Bytes.of_string msg in
         Lwt_unix.sendto s b 0 (String.length msg) [] sa >|= fun _ -> ())
       (function
-        | Unix.Unix_error (Unix.EAGAIN, _, _) -> send msg
         | Unix.Unix_error (e, f, _) ->
           Printf.eprintf "error in %s %s while sending to %s:%d\n%s %s\n"
             f (Unix.error_message e) (Unix.string_of_inet_addr ip) port
@@ -68,7 +67,6 @@ let tcp_reporter ?hostname ip ?(port = 514) ?(truncate = 0) ?(framing = `Null) (
           let should = len - idx in
           (Lwt.catch (fun () -> Lwt_unix.send sock msg idx (len - idx) [])
              (function
-               | Unix.Unix_error (Unix.EAGAIN, _, _) -> Lwt.return idx
                | Unix.Unix_error (e, f, _) ->
                  s := None ;
                  let err = Unix.error_message e in
