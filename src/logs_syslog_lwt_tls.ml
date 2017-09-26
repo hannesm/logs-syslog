@@ -59,7 +59,6 @@ let tcp_tls_reporter
         Lwt.catch
           (fun () -> Tls_lwt.Unix.write t msg)
           (function
-            | Unix.Unix_error (Unix.EAGAIN, _, _) -> send omsg
             | Unix.Unix_error (e, f, _) ->
               tls := None ;
               let err = Unix.error_message e in
