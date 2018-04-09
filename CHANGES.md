@@ -1,3 +1,8 @@
+## 0.1.1 (2018-04-09)
+
+- be honest about lwt.unix dependency in tls-syslog.lwt{.tls} (lwt 4.0 support)
+- logs-syslog.lwt: no need to handle EAGAIN (already handled by Lwt_unix)
+
 ## 0.1.0 (2017-01-18)
 
 - remove <4.03 compatibility
