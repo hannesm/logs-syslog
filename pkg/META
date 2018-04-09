@@ -21,7 +21,7 @@ package "unix" (
 package "lwt" (
   description = "Lwt syslog reporter"
   version = "%%VERSION_NUM%%"
-  requires = "logs-syslog logs syslog-message ptime.clock.os lwt"
+  requires = "logs-syslog logs syslog-message ptime.clock.os lwt lwt.unix"
   archive(byte) = "logs-syslog-lwt.cma"
   archive(native) = "logs-syslog-lwt.cmxa"
   plugin(byte) = "logs-syslog-lwt.cma"
@@ -31,7 +31,7 @@ package "lwt" (
   package "tls" (
     description = "Lwt TLS syslog reporter"
     version = "%%VERSION_NUM%%"
-    requires = "logs-syslog logs-syslog.lwt logs syslog-message ptime.clock.os lwt x509 tls tls.lwt cstruct"
+    requires = "logs-syslog logs-syslog.lwt logs syslog-message ptime.clock.os lwt lwt.unix x509 tls tls.lwt cstruct"
     archive(byte) = "logs-syslog-lwt-tls.cma"
     archive(native) = "logs-syslog-lwt-tls.cmxa"
     plugin(byte) = "logs-syslog-lwt-tls.cma"

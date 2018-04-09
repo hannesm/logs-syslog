@@ -7,8 +7,8 @@ true : package(syslog-message logs ptime)
 
 <src/logs_syslog_lwt_common.{ml,mli}>: package(lwt)
 
-<src/logs_syslog_lwt.{ml,mli}>: package(ptime.clock.os lwt)
-<src/logs_syslog_lwt_tls.{ml,mli}>: package(ptime.clock.os lwt x509 tls tls.lwt cstruct)
+<src/logs_syslog_lwt.{ml,mli}>: package(ptime.clock.os lwt lwt.unix)
+<src/logs_syslog_lwt_tls.{ml,mli}>: package(ptime.clock.os lwt lwt.unix x509 tls tls.lwt cstruct)
 
 <src/logs_syslog_mirage.{ml,mli}>: package(lwt cstruct ipaddr mirage-stack-lwt mirage-console-lwt mirage-clock)
 <src/logs_syslog_mirage_tls.{ml,mli}>: package(lwt cstruct ipaddr mirage-stack-lwt mirage-console-lwt mirage-kv-lwt mirage-clock tls.mirage x509 tls)
