@@ -30,6 +30,23 @@ val tcp_reporter : ?hostname:string -> Unix.inet_addr -> ?port:int ->
   ?facility:Syslog_message.facility -> unit ->
   (Logs.reporter, string) result
 
+(** [unix_reporter ~socket ~truncate ~framing ()] is [Ok reporter] or
+    [Error msg]. The [reporter] sends each log message via syslog to [socket]
+    (which defaults to ["/dev/log"]). If the initial connection to the socket
+    fails, the log message is reported to standard error, and attempts are made
+    to re-establish the connection. A syslog message is truncated to [truncate]
+    bytes and is framed according to the given [framing]. The default for
+    [truncate] is [65536] if [framing] is not provided and [0] otherwise. If
+    [framing] is not provided, then the socket used is a datagram socket (as
+    for {!udp_reporter}) otherwise a stream socket is used (as for
+    {!tcp_reporter}). [facility] is the default syslog facility (see
+    {!Logs_syslog.message}). *)
+val unix_reporter : ?socket:string ->
+  ?truncate:int ->
+  ?framing:Logs_syslog.framing ->
+  ?facility:Syslog_message.facility -> unit ->
+  (Logs.reporter, string) result
+
 (** {1:unix_example Example usage}
 
     To install a Unix syslog reporter. sending via UDP to localhost, use the
