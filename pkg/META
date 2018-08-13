@@ -10,7 +10,7 @@ exists_if = "logs-syslog.cma"
 package "unix" (
   description = "Unix syslog reporter"
   version = "%%VERSION_NUM%%"
-  requires = "logs-syslog logs syslog-message ptime.clock.os"
+  requires = "logs-syslog logs syslog-message ptime.clock.os unix"
   archive(byte) = "logs-syslog-unix.cma"
   archive(native) = "logs-syslog-unix.cmxa"
   plugin(byte) = "logs-syslog-unix.cma"
