@@ -25,7 +25,21 @@ let message ?(facility = Syslog_message.System_Daemons)
       (Logs.Tag.pp_set ppf tags ;
        " " ^ flush ())
   in
+  (* RFC 3164 4.1.3 notes that TAG (in this case, source) can be terminated by
+     any non-alphanumeric character and explictly notes that space is valid.
+     However, colon is more common and in at least one case the space is not
+     sufficient for correct parsing of the message. All this is irrelevant in
+     RFC 5424.
+     (see https://github.com/hannesm/logs-syslog/issues/6) *)
+  let source =
+    let len = String.length source in
+    if len > 0 && source.[len - 1] <> ':' then
+      source ^ ":"
+    else
+      source
+  in
   let hdr = match header with None -> "" | Some x -> " " ^ x in
+  (* According to RFC 3164, source should be no more than 32 chars. *)
   let message = Printf.sprintf "%s%s%s %s" source tags hdr message
   and severity = slevel level
   in
