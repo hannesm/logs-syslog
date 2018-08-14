@@ -5,6 +5,10 @@ let syslog_report_common facility host len now send =
     let source = Logs.Src.name src in
     let timestamp = now () in
     let k tags ?header _ =
+      let facility = match Logs.Tag.find Logs_syslog.facility tags with
+      | None -> facility
+      | facility -> facility
+      in
       let msg =
         message ?facility ~host ~source ~tags ?header level timestamp (flush ())
       in
