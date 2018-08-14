@@ -2,7 +2,7 @@ open Lwt.Infix
 open Logs_syslog_lwt_common
 open Logs_syslog
 
-let udp_reporter ?hostname ip ?(port = 514) ?(truncate = 65535) () =
+let udp_reporter ?hostname ip ?(port = 514) ?(truncate = 65535) ?facility () =
   let sa = Lwt_unix.ADDR_INET (ip, port) in
   let s = Lwt_unix.(socket PF_INET SOCK_DGRAM 0) in
   let rec send msg =
@@ -20,9 +20,9 @@ let udp_reporter ?hostname ip ?(port = 514) ?(truncate = 65535) () =
   (match hostname with
    | Some x -> Lwt.return x
    | None -> Lwt_unix.gethostname ()) >|= fun host ->
-  syslog_report_common host truncate Ptime_clock.now send
+  syslog_report_common facility host truncate Ptime_clock.now send
 
-let tcp_reporter ?hostname ip ?(port = 514) ?(truncate = 0) ?(framing = `Null) () =
+let tcp_reporter ?hostname ip ?(port = 514) ?(truncate = 0) ?(framing = `Null) ?facility () =
   let sa = Lwt_unix.ADDR_INET (ip, port) in
   let s = ref None in
   let m = Lwt_mutex.create () in
@@ -85,4 +85,5 @@ let tcp_reporter ?hostname ip ?(port = 514) ?(truncate = 0) ?(framing = `Null) (
     at_exit (fun () -> match !s with
         | None -> ()
         | Some x -> Lwt.async (fun () -> Lwt_unix.close x)) ;
-    Lwt.return (Ok (syslog_report_common host truncate Ptime_clock.now send))
+    Lwt.return (Ok (syslog_report_common facility host truncate Ptime_clock.now
+                                         send))
