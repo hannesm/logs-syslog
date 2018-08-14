@@ -15,11 +15,13 @@
     is appended, depending on [framing], its length could be prepended, as
     specified in {{:https://tools.ietf.org/html/rfc5125}RFC 5125}.  The default
     value for [hostname] is [Lwt_unix.gethostname ()], the default value for
-    [port] is 6514. *)
+    [port] is 6514. [facility] is the default syslog facility (see
+    {!logs_syslog.message}). *)
 val tcp_tls_reporter : ?hostname:string -> Lwt_unix.inet_addr -> ?port:int ->
   cacert:string -> cert:string -> priv_key:string ->
   ?truncate:int ->
-  ?framing:Logs_syslog.framing -> unit ->
+  ?framing:Logs_syslog.framing ->
+  ?facility:Syslog_message.facility -> unit ->
   (Logs.reporter, string) result Lwt.t
 
 (** {1:lwt_tls_example Example usage}

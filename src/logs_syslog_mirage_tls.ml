@@ -6,7 +6,7 @@ module Tls (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
   module TLS = Tls_mirage.Make(TCP)
   module X509 = Tls_mirage.X509(KV)(CLOCK)
 
-  let create c clock stack kv ?keyname ~hostname dst ?(port = 6514) ?(truncate = 0) ?(framing = `Null) () =
+  let create c clock stack kv ?keyname ~hostname dst ?(port = 6514) ?(truncate = 0) ?(framing = `Null) ?facility () =
     let tcp = STACK.tcpv4 stack in
     let f = ref None in
     let dsts =
@@ -61,6 +61,7 @@ module Tls (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
     connect () >|= function
     | Ok () ->
       Ok (Logs_syslog_lwt_common.syslog_report_common
+            facility
             hostname
             truncate
             (fun () -> Ptime.v (CLOCK.now_d_ps clock))

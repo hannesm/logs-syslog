@@ -4,7 +4,7 @@ open Logs_syslog
 
 let tcp_tls_reporter
     ?hostname ip ?(port = 6514) ~cacert ~cert ~priv_key ?(truncate = 0)
-    ?(framing = `Null) () =
+    ?(framing = `Null) ?facility () =
   let sa = Lwt_unix.ADDR_INET (ip, port) in
   let tls = ref None in
   let m = Lwt_mutex.create () in
@@ -78,7 +78,8 @@ let tcp_tls_reporter
     at_exit (fun () -> match !tls with
         | None -> ()
         | Some tls -> Lwt.async (fun () -> Tls_lwt.Unix.close tls)) ;
-    Lwt.return (Ok (syslog_report_common host truncate Ptime_clock.now send))
+    Lwt.return (Ok (syslog_report_common facility host truncate Ptime_clock.now
+                                         send))
 
 (*
 let main () =

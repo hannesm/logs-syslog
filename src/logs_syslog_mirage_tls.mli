@@ -14,9 +14,11 @@ module Tls (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
       [c], and attempts are made to re-establish the TLS connection.  Each
       message can be truncated (to [truncate] bytes), default is to not
       truncate.  The [hostname] is part of each syslog message.  The [port]
-      defaults to 6514, [framing] to appending a 0 byte.  *)
+      defaults to 6514, [framing] to appending a 0 byte. [facility] is the
+      default syslog facility (see {!logs_syslog.message}).  *)
   val create : C.t -> CLOCK.t -> STACK.t -> KV.t -> ?keyname:string -> hostname:string ->
-    STACK.ipv4addr -> ?port:int -> ?truncate:int -> ?framing:Logs_syslog.framing -> unit ->
+    STACK.ipv4addr -> ?port:int -> ?truncate:int -> ?framing:Logs_syslog.framing ->
+    ?facility:Syslog_message.facility -> unit ->
     (Logs.reporter, string) result STACK.io
 end
 

@@ -6,9 +6,11 @@
     sends syslog message using the given [hostname] to [remote_ip, remote_port]
     via UDP.  Each message is truncated to [truncate] bytes (defaults to 65535).
     The [hostname] default to [Lwt_unix.gethostname ()], [port] defaults to
-    514. *)
+    514. [facility] is the default syslog facility (see
+    {!logs_syslog.message}). *)
 val udp_reporter :
-  ?hostname:string -> Lwt_unix.inet_addr -> ?port:int -> ?truncate:int -> unit ->
+  ?hostname:string -> Lwt_unix.inet_addr -> ?port:int -> ?truncate:int ->
+  ?facility:Syslog_message.facility -> unit ->
   Logs.reporter Lwt.t
 
 (** [tcp_reporter ~hostname remote_ip ~port ~truncate ~framing ()] is [Ok
@@ -20,10 +22,12 @@ val udp_reporter :
     [truncate] bytes (defaults to 0, thus no truncation).  Each syslog message
     is framed (using [framing]), the default strategy is to append a single byte
     containing 0.  The [hostname] default to [Lwt_unix.gethostname ()], [port]
-    to 514. *)
+    to 514. [facility] is the default syslog facility (see
+    {!logs_syslog.message}). *)
 val tcp_reporter : ?hostname:string -> Lwt_unix.inet_addr -> ?port:int ->
   ?truncate:int ->
-  ?framing:Logs_syslog.framing -> unit ->
+  ?framing:Logs_syslog.framing ->
+  ?facility:Syslog_message.facility -> unit ->
   (Logs.reporter, string) result Lwt.t
 
 (** {1:lwt_example Example usage}

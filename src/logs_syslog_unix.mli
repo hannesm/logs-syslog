@@ -6,9 +6,11 @@
     sends log message to [remote_ip, port] via UDP.  Each message is truncated
     to [truncate] bytes (defaults to 65535).  The [hostname] is part of each
     syslog message, and defaults to [Unix.gethostname ()], the [port] defaults
-    to 514. *)
+    to 514. [facility] is the default syslog facility (see
+    {!logs_syslog.message}). *)
 val udp_reporter :
-  ?hostname:string -> Unix.inet_addr -> ?port:int -> ?truncate:int -> unit ->
+  ?hostname:string -> Unix.inet_addr -> ?port:int -> ?truncate:int ->
+  ?facility:Syslog_message.facility -> unit ->
   Logs.reporter
 
 (** [tcp_reporter ~hostname remote_ip ~port ~truncate ~framing ()] is [Ok
@@ -20,10 +22,12 @@ val udp_reporter :
     truncated to [truncate] bytes (by default no truncation happens). Each
     syslog message is framed according to the given [framing] (defaults to a
     single 0 byte).  The [hostname] defaults to [Unix.gethostname ()], [port] to
-    514, [framing] to append a 0 byte. *)
+    514, [framing] to append a 0 byte. [facility] is the default syslog facility
+    (see {!logs_syslog.message}). *)
 val tcp_reporter : ?hostname:string -> Unix.inet_addr -> ?port:int ->
   ?truncate:int ->
-  ?framing:Logs_syslog.framing -> unit ->
+  ?framing:Logs_syslog.framing ->
+  ?facility:Syslog_message.facility -> unit ->
   (Logs.reporter, string) result
 
 (** {1:unix_example Example usage}
