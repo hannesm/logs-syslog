@@ -3,11 +3,12 @@ open Lwt.Infix
 module Udp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack_lwt.V4) = struct
   module UDP = STACK.UDPV4
 
-  let create c clock stack ~hostname dst ?(port = 514) ?(truncate = 65535) () =
+  let create c clock stack ~hostname dst ?(port = 514) ?(truncate = 65535) ?facility () =
     let dsts =
       Printf.sprintf "while writing to %s:%d" (Ipaddr.V4.to_string dst) port
     in
     Logs_syslog_lwt_common.syslog_report_common
+      facility
       hostname
       truncate
       (* This API for PCLOCK is inconvenient (overengineered?) *)
@@ -25,7 +26,7 @@ module Tcp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
   open Logs_syslog
   module TCP = STACK.TCPV4
 
-  let create c clock stack ~hostname dst ?(port = 514) ?(truncate = 0) ?(framing = `Null) () =
+  let create c clock stack ~hostname dst ?(port = 514) ?(truncate = 0) ?(framing = `Null) ?facility () =
     let tcp = STACK.tcpv4 stack in
     let f = ref None in
     let dsts =
@@ -65,6 +66,7 @@ module Tcp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
     connect () >|= function
     | Ok () ->
       Ok (Logs_syslog_lwt_common.syslog_report_common
+            facility
             hostname
             truncate
             (fun () -> Ptime.v (CLOCK.now_d_ps clock))
