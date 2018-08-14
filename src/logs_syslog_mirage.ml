@@ -20,6 +20,7 @@ module Udp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
            Format.(fprintf str_formatter "error %a %s, message: %s"
                      UDP.pp_error e dsts s) ;
            C.log c (Format.flush_str_formatter ()))
+      Syslog_message.encode
 end
 
 module Tcp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack_lwt.V4) = struct
@@ -70,6 +71,7 @@ module Tcp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
             hostname
             truncate
             (fun () -> Ptime.v (CLOCK.now_d_ps clock))
-            send)
+            send
+            Syslog_message.encode)
     | Error e -> Error e
 end
