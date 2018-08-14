@@ -89,3 +89,7 @@ val ppf : Format.formatter
 
 (** [flush ()] flushes the formatter, and return the [text] *)
 val flush : unit -> string
+
+(** [facility] is a {!Logs.Tag.def} tag to give a message a different syslog
+    facility from the reporter's default. *)
+val facility : Syslog_message.facility Logs.Tag.def

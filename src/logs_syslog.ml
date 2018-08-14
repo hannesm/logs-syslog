@@ -15,10 +15,17 @@ let ppf, flush =
   in
   ppf, flush
 
+let facility =
+  let ppf ppf v =
+    Syslog_message.string_of_facility v |> Format.pp_print_string ppf
+  in
+  Logs.Tag.def ~doc:"Syslog facility" "syslog-facility" ppf
+
 (* TODO: can we derive the facility from the source? *)
-let message ?(facility = Syslog_message.System_Daemons)
+let message ?facility:(syslog_facility = Syslog_message.System_Daemons)
     ~host:hostname ~source ~tags ?header level timestamp message =
   let tags =
+    let tags = Logs.Tag.rem facility tags in
     if Logs.Tag.is_empty tags then
       ""
     else
@@ -29,7 +36,8 @@ let message ?(facility = Syslog_message.System_Daemons)
   let message = Printf.sprintf "%s%s%s %s" source tags hdr message
   and severity = slevel level
   in
-  { Syslog_message.facility ; severity ; timestamp ; hostname ; message }
+  { Syslog_message.facility = syslog_facility ; severity ; timestamp ;
+                   hostname ; message }
 
 type framing = [
   | `LineFeed

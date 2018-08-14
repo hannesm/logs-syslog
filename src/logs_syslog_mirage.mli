@@ -8,7 +8,7 @@ module Udp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
       sends log messages to [ip, port] via UDP.  Upon failure, a message is
       emitted to the console [c].  Each message can be truncated: [truncate]
       defaults to 65535 bytes.  The [hostname] is part of each syslog message.
-      The [port] defaults to 514. [facility] is the syslog facility (see
+      The [port] defaults to 514. [facility] is the default syslog facility (see
       {!logs_syslog.message}). *)
   val create : C.t -> CLOCK.t -> STACK.t -> hostname:string ->
     STACK.ipv4addr -> ?port:int -> ?truncate:int ->
@@ -25,8 +25,8 @@ module Tcp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
       connection.  Each syslog message can be truncated, depending on [truncate]
       (defaults to no truncating).  The [hostname] is part of each syslog
       message.  The default value of [port] is 514, the default behaviour of
-      [framing] is to append a 0 byte. [facility] is the syslog facility (see
-      {!logs_syslog.message}). *)
+      [framing] is to append a 0 byte. [facility] is the default syslog
+      facility (see {!logs_syslog.message}). *)
   val create : C.t -> CLOCK.t -> STACK.t -> hostname:string ->
     STACK.ipv4addr -> ?port:int ->
     ?truncate:int ->
