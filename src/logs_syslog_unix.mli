@@ -7,7 +7,7 @@
     to [truncate] bytes (defaults to 65535).  The [hostname] is part of each
     syslog message, and defaults to [Unix.gethostname ()], the [port] defaults
     to 514. [facility] is the default syslog facility (see
-    {!logs_syslog.message}). *)
+    {!Logs_syslog.message}). *)
 val udp_reporter :
   ?hostname:string -> Unix.inet_addr -> ?port:int -> ?truncate:int ->
   ?facility:Syslog_message.facility -> unit ->
@@ -21,9 +21,9 @@ val udp_reporter :
     attempts are made to re-establish the TCP connection.  A syslog message is
     truncated to [truncate] bytes (by default no truncation happens). Each
     syslog message is framed according to the given [framing] (defaults to a
-    single 0 byte).  The [hostname] defaults to [Unix.gethostname ()], [port] to
-    514, [framing] to append a 0 byte. [facility] is the default syslog facility
-    (see {!logs_syslog.message}). *)
+    single zero byte).  The [hostname] defaults to [Unix.gethostname ()], [port]
+    to 514, [framing] to append a zero byte. [facility] is the default syslog
+    facility (see {!Logs_syslog.message}). *)
 val tcp_reporter : ?hostname:string -> Unix.inet_addr -> ?port:int ->
   ?truncate:int ->
   ?framing:Logs_syslog.framing ->

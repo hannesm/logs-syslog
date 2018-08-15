@@ -7,7 +7,7 @@
     via UDP.  Each message is truncated to [truncate] bytes (defaults to 65535).
     The [hostname] default to [Lwt_unix.gethostname ()], [port] defaults to
     514. [facility] is the default syslog facility (see
-    {!logs_syslog.message}). *)
+    {!Logs_syslog.message}). *)
 val udp_reporter :
   ?hostname:string -> Lwt_unix.inet_addr -> ?port:int -> ?truncate:int ->
   ?facility:Syslog_message.facility -> unit ->
@@ -23,7 +23,7 @@ val udp_reporter :
     is framed (using [framing]), the default strategy is to append a single byte
     containing 0.  The [hostname] default to [Lwt_unix.gethostname ()], [port]
     to 514. [facility] is the default syslog facility (see
-    {!logs_syslog.message}). *)
+    {!Logs_syslog.message}). *)
 val tcp_reporter : ?hostname:string -> Lwt_unix.inet_addr -> ?port:int ->
   ?truncate:int ->
   ?framing:Logs_syslog.framing ->

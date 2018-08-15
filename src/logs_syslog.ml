@@ -21,7 +21,6 @@ let facility =
   in
   Logs.Tag.def ~doc:"Syslog facility" "syslog-facility" ppf
 
-(* TODO: can we derive the facility from the source? *)
 let message ?facility:(syslog_facility = Syslog_message.System_Daemons)
     ~host:hostname ~source ~tags ?header level timestamp message =
   let tags =
