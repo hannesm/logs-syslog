@@ -1,3 +1,11 @@
+## unreleased
+
+- provide Logs_syslog.facility Logs.Tag.def to specify facility in log
+  message, add ?facility as default facility to all reporters (reported in #7,
+  fixed in #9 by @dra27)
+- append ':' to source (reported in #6, fixed in #8 by @dra27)
+- add missing dependency on unix for logs-syslog.unix (#4 by @dra27)
+
 ## 0.1.1 (2018-04-09)
 
 - be honest about lwt.unix dependency in tls-syslog.lwt{.tls} (lwt 4.0 support)
