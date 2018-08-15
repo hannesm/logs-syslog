@@ -24,17 +24,17 @@ let tcp_tls_reporter
          Tls_lwt.Unix.client_of_fd conf sock >|= fun t ->
          tls := Some t ;
          Ok ())
-      (fun exn ->
-         Lwt.return @@ match exn with
+      (function
          | Unix.Unix_error (e, f, _) ->
            let err =
              Printf.sprintf "error %s in function %s while connecting to %s:%d"
                (Unix.error_message e) f (Unix.string_of_inet_addr ip) port
            in
-           Error err
+           Lwt.return @@ Error err
          | Tls_lwt.Tls_failure f ->
            let err = Tls.Engine.string_of_failure f in
-           Error (Printf.sprintf "TLS failure %s" err))
+           Lwt.return @@ Error (Printf.sprintf "TLS failure %s" err)
+         | exn -> Lwt.fail exn)
   in
   let reconnect k msg =
     Lwt_mutex.lock m >>= fun () ->
@@ -73,7 +73,8 @@ let tcp_tls_reporter
               Lwt.catch
                 (fun () -> Tls_lwt.Unix.close t)
                 (fun _ -> Lwt.return_unit) >>= fun () ->
-              reconnect send omsg)
+              reconnect send omsg
+            | exn -> Lwt.fail exn)
     in
     at_exit (fun () -> match !tls with
         | None -> ()

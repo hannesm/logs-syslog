@@ -15,7 +15,8 @@ let udp_reporter ?hostname ip ?(port = 514) ?(truncate = 65535) ?facility () =
             f (Unix.error_message e) (Unix.string_of_inet_addr ip) port
             (Ptime.to_rfc3339 (Ptime_clock.now ()))
             msg ;
-          Lwt.return_unit)
+          Lwt.return_unit
+        | exn -> Lwt.fail exn)
   in
   (match hostname with
    | Some x -> Lwt.return x
@@ -40,7 +41,8 @@ let tcp_reporter ?hostname ip ?(port = 514) ?(truncate = 0) ?(framing = `Null) ?
            Printf.sprintf "error %s in function %s while connecting to %s:%d"
              (Unix.error_message e) f (Unix.string_of_inet_addr ip) port
          in
-         Lwt.return (Error err))
+         Lwt.return (Error err)
+       | exn -> Lwt.fail exn)
   in
   let reconnect k msg =
     Lwt_mutex.lock m >>= fun () ->
@@ -73,8 +75,10 @@ let tcp_reporter ?hostname ip ?(port = 514) ?(truncate = 0) ?(framing = `Null) ?
                  Printf.eprintf "error %s in function %s, reconnecting\n" err f ;
                  Lwt.catch
                    (fun () -> Lwt_unix.close sock)
-                   (function Unix.Unix_error _ -> Lwt.return_unit) >>= fun () ->
-                 reconnect send omsg >|= fun () -> should)) >>= fun n ->
+                   (function Unix.Unix_error _ -> Lwt.return_unit
+                           | exn -> Lwt.fail exn) >>= fun () ->
+                 reconnect send omsg >|= fun () -> should
+               | exn -> Lwt.fail exn)) >>= fun n ->
           if n = should then
             Lwt.return_unit
           else
