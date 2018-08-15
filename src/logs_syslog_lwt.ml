@@ -15,7 +15,8 @@ let udp_reporter ?hostname ip ?(port = 514) ?(truncate = 65535) ?facility () =
             f (Unix.error_message e) (Unix.string_of_inet_addr ip) port
             (Ptime.to_rfc3339 (Ptime_clock.now ()))
             msg ;
-          Lwt.return_unit)
+          Lwt.return_unit
+        | exn -> Lwt.fail exn)
   in
   (match hostname with
    | Some x -> Lwt.return x
@@ -43,7 +44,8 @@ let conn_reporter sd st sa truncate frame encode hostname facility =
            Printf.sprintf "error %s in function %s while connecting to %s"
              (Unix.error_message e) f endpoint
          in
-         Lwt.return (Error err))
+         Lwt.return (Error err)
+       | exn -> Lwt.fail exn)
   in
   let reconnect k msg =
     Lwt_mutex.lock m >>= fun () ->
@@ -80,7 +82,6 @@ let conn_reporter sd st sa truncate frame encode hostname facility =
       | None -> reconnect send omsg
       | Some sock ->
         let msg = frame omsg |> Bytes.of_string in
-        let len = Bytes.length msg in
         (Lwt.catch (transmit sock msg (Bytes.length msg))
            (function
              | Unix.Unix_error (e, f, _) ->
