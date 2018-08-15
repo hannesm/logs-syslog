@@ -1,7 +1,6 @@
 _build/
-*.native
-*.byte
-*.install
+logs-syslog.install
+src/.merlin
 
 example/mirage-unikernel-*.opam
 example/.mirage.config
