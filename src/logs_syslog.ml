@@ -17,7 +17,7 @@ let ppf, flush =
 
 let facility =
   let ppf ppf v =
-    Syslog_message.string_of_facility v |> Format.pp_print_string ppf
+    Format.pp_print_string ppf (Syslog_message.string_of_facility v)
   in
   Logs.Tag.def ~doc:"Syslog facility" "syslog-facility" ppf
 
