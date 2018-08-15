@@ -5,7 +5,7 @@ open Logs_syslog
 let udp_reporter ?hostname ip ?(port = 514) ?(truncate = 65535) ?facility () =
   let sa = Lwt_unix.ADDR_INET (ip, port) in
   let s = Lwt_unix.(socket PF_INET SOCK_DGRAM 0) in
-  let rec send msg =
+  let send msg =
     Lwt.catch (fun () ->
         let b = Bytes.of_string msg in
         Lwt_unix.sendto s b 0 (String.length msg) [] sa >|= fun _ -> ())
