@@ -1,6 +1,6 @@
 _build/
 logs-syslog.install
-src/.merlin
+src/**/.merlin
 
 example/mirage-unikernel-*.opam
 example/.mirage.config

@@ -1,5 +1,5 @@
 open Lwt.Infix
-open Logs_syslog_lwt_common
+open Logs_syslog_lwt__Logs_syslog_lwt_common
 open Logs_syslog
 
 let tcp_tls_reporter
