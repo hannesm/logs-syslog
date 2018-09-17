@@ -65,6 +65,7 @@ module Tls (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
             hostname
             truncate
             (fun () -> Ptime.v (CLOCK.now_d_ps clock))
-            send)
+            send
+            Syslog_message.encode)
     | Error e -> Error e
 end

@@ -79,7 +79,7 @@ let tcp_tls_reporter
         | None -> ()
         | Some tls -> Lwt.async (fun () -> Tls_lwt.Unix.close tls)) ;
     Lwt.return (Ok (syslog_report_common facility host truncate Ptime_clock.now
-                                         send))
+                                         send Syslog_message.encode))
 
 (*
 let main () =
