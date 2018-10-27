@@ -90,8 +90,11 @@ let conn_reporter sd st sa truncate frame encode hostname facility =
                Printf.eprintf "error %s in function %s, reconnecting\n" err f ;
                Lwt.catch
                  (fun () -> Lwt_unix.close sock)
-                 (function Unix.Unix_error _ -> Lwt.return_unit) >>= fun () ->
-               reconnect send omsg))
+                 (function
+                   | Unix.Unix_error _ -> Lwt.return_unit
+                   | exn -> Lwt.fail exn) >>= fun () ->
+               reconnect send omsg
+             | exn -> Lwt.fail exn))
     in
     at_exit (fun () -> match !s with
         | None -> ()
