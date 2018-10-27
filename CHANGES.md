@@ -1,5 +1,9 @@
-## unreleased
+## 0.2.0 (2018-10-27)
 
+- support for syslog-message.1.0.0
+  it split the `message` field of Syslog_message.t into `tag` and `content`
+  use the name of Logs.src as tag when sending messages
+- move build system to dune (#10 by @dra27)
 - provide Logs_syslog.facility Logs.Tag.def to specify facility in log
   message, add ?facility as default facility to all reporters (reported in #7,
   fixed in #9 by @dra27)
