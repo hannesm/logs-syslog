@@ -60,7 +60,7 @@ module Tls (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
     in
     connect () >|= function
     | Ok () ->
-      Ok (Logs_syslog_lwt_common.syslog_report_common
+      Ok (Logs_syslog_mirage__Logs_syslog_lwt_common.syslog_report_common
             facility
             hostname
             truncate

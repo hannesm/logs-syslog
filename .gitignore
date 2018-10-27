@@ -1,7 +1,6 @@
 _build/
-*.native
-*.byte
-*.install
+logs-syslog.install
+src/**/.merlin
 
 example/mirage-unikernel-*.opam
 example/.mirage.config
@@ -11,6 +10,8 @@ example/log
 example/main.ml
 example/myocamlbuild.ml
 example/syslog*
+example/*native
+example/*install
 
 *.key
 *.pem
