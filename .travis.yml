@@ -9,10 +9,8 @@ env:
   matrix:
     - OCAML_VERSION=4.03
     - OCAML_VERSION=4.04
-    - OCAML_VERSION=4.05
-    - OCAML_VERSION=4.06
-    - OCAML_VERSION=4.04 DEPOPTS="lwt x509 tls cstruct" TESTS=false
-    - OCAML_VERSION=4.05 DEPOPTS="lwt mirage-stack-lwt mirage-console-lwt mirage-clock cstruct ipaddr" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
-    - OCAML_VERSION=4.06 DEPOPTS="lwt x509 tls mirage-kv-lwt mirage-stack-lwt mirage-console-lwt mirage-clock cstruct ipaddr" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
+    - OCAML_VERSION=4.05 DEPOPTS="lwt x509 tls cstruct" TESTS=false
+    - OCAML_VERSION=4.06 DEPOPTS="lwt mirage-stack-lwt mirage-console-lwt mirage-clock cstruct ipaddr" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
+    - OCAML_VERSION=4.07 DEPOPTS="lwt x509 tls mirage-kv-lwt mirage-stack-lwt mirage-console-lwt mirage-clock cstruct ipaddr" TESTS=false POST_INSTALL_HOOK="./.travis-test.sh"
 notifications:
   email: false
