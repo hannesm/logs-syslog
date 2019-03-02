@@ -13,8 +13,8 @@ val udp_reporter :
   ?facility:Syslog_message.facility -> unit ->
   Logs.reporter Lwt.t
 
-(** [tcp_reporter ~hostname remote_ip ~port ~truncate ~framing ()] is [Ok
-    reporter] or [Error msg].  The [reporter] sends each log message to
+(** [tcp_reporter ~hostname remote_ip ~port ~truncate ~framing ()] is
+    [Ok reporter] or [Error msg].  The [reporter] sends each log message to
     [remote_ip, port] via TCP.  If the initial TCP connection to the [remote_ip]
     fails, an [Error msg] is returned instead.  If the TCP connection fails, the
     log message is reported to standard error, and attempts are made to
@@ -47,7 +47,7 @@ val unix_reporter : ?socket:string ->
   ?facility:Syslog_message.facility -> unit ->
   (Logs.reporter, string) result Lwt.t
 
-(** {1:lwt_example Example usage}
+(** {2:lwt_example Example usage}
 
     To install a Lwt syslog reporter, sending via UDP to localhost, use the
     following snippet:

@@ -22,7 +22,7 @@ module Tls (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
     (Logs.reporter, string) result STACK.io
 end
 
-(** {1:mirage_example Example usage}
+(** {2:mirage_example Example usage}
 
     To install a Mirage syslog reporter, sending via TLS to localhost, use the
     following snippet:

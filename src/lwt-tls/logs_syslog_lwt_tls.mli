@@ -2,8 +2,8 @@
 
     Please read {!Logs_syslog} first. *)
 
-(** [tcp_tls_reporter ~hostname remote_ip ~port ~cacert ~cert ~priv_key
-    ~truncate ~framing ()] is [Ok reporter] or [Error msg].  The TLS connection
+(** [tcp_tls_reporter ~hostname remote_ip ~port ~cacert ~cert ~priv_key ~truncate ~framing ()]
+    is [Ok reporter] or [Error msg].  The TLS connection
     validates the certificate of the log server, it must be signed by [cacert].
     The reporters credentials are its public [cert], and its [priv_key].  The
     [reporter] sends each log message to [remote_ip, port] via TLS.  If the
@@ -24,7 +24,7 @@ val tcp_tls_reporter : ?hostname:string -> Lwt_unix.inet_addr -> ?port:int ->
   ?facility:Syslog_message.facility -> unit ->
   (Logs.reporter, string) result Lwt.t
 
-(** {1:lwt_tls_example Example usage}
+(** {2:lwt_tls_example Example usage}
 
     To install a Lwt syslog reporter, sending via TLS to localhost, use the
     following snippet (assuming you already have certificates, and the common

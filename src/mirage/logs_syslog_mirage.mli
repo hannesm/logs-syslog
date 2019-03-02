@@ -17,8 +17,8 @@ end
 
 (** TCP syslog *)
 module Tcp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack_lwt.V4) : sig
-  (** [create c clock tcp ~hostname ip ~port ~truncate ~framing ()] is [Ok
-      reporter] or [Error msg].  The [reporter] sends log messages to [ip, port]
+  (** [create c clock tcp ~hostname ip ~port ~truncate ~framing ()] is
+      [Ok reporter] or [Error msg].  The [reporter] sends log messages to [ip, port]
       via TCP.  If the initial TCP connection to the [remote_ip] fails, an
       [Error msg] is returned instead.  If the TCP connection fails, an error is
       logged to the console [c] and attempts are made to re-establish the TCP
@@ -35,7 +35,7 @@ module Tcp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
     (Logs.reporter, string) result STACK.io
 end
 
-(** {1:mirage_example Example usage}
+(** {2:mirage_example Example usage}
 
     To install a Mirage syslog reporter, sending via UDP to localhost, use the
     following snippet:

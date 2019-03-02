@@ -13,8 +13,8 @@ val udp_reporter :
   ?facility:Syslog_message.facility -> unit ->
   Logs.reporter
 
-(** [tcp_reporter ~hostname remote_ip ~port ~truncate ~framing ()] is [Ok
-    reporter] or [Error msg].  The [reporter] sends each log message via syslog
+(** [tcp_reporter ~hostname remote_ip ~port ~truncate ~framing ()] is
+    [Ok reporter] or [Error msg].  The [reporter] sends each log message via syslog
     to [remote_ip, port] via TCP.  If the initial TCP connection to the
     [remote_ip] fails, an [Error msg] is returned instead.  If the TCP
     connection fails, the log message is reported to standard error, and
@@ -47,7 +47,7 @@ val unix_reporter : ?socket:string ->
   ?facility:Syslog_message.facility -> unit ->
   (Logs.reporter, string) result
 
-(** {1:unix_example Example usage}
+(** {2:unix_example Example usage}
 
     To install a Unix syslog reporter. sending via UDP to localhost, use the
     following snippet:
