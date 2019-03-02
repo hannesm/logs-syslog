@@ -1,3 +1,7 @@
+## v0.2.1 (2019-03-02)
+
+- lwt: don't report while reporting (otherwise out of memory).
+
 ## 0.2.0 (2018-10-27)
 
 - support for syslog-message.1.0.0
