@@ -8,6 +8,17 @@ let syslog_report_common
     send
     (encode : ?len:int -> Syslog_message.t -> string) =
   let reporting = ref false in
+  (* This is local mutable state to avoid reporting log messages while
+     reporting a log message, which leads to out of memory (if the new log
+     message is created before the reported one) or busy logging (if the new log
+     message is created after the reported one) in cases where the code path
+     is always the same (used to happen in tcpip where IPv4.write logged, which
+     is used by the syslog reporters in `send` below).
+     Avoiding this busy loop behaviour is done in an unsafe way: (local) mutable
+     state (a bool ref), which is read and written without any lock. This works
+     well in Lwt since there is no bind / blocking operation between the read
+     and write of `reporting`. Should be revised with a mutex to guard the
+     access to `reporting`. *)
   let report src level ~over k msgf =
     if !reporting then begin
       over () ; k ()
