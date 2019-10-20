@@ -1,4 +1,4 @@
-module Tls (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack_lwt.V4) (KV : Mirage_kv_lwt.RO) = struct
+module Tls (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack.V4) (KV : Mirage_kv.RO) = struct
   open Lwt.Infix
   open Logs_syslog
 
@@ -6,14 +6,14 @@ module Tls (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
   module TLS = Tls_mirage.Make(TCP)
   module X509 = Tls_mirage.X509(KV)(CLOCK)
 
-  let create c clock stack kv ?keyname ~hostname dst ?(port = 6514) ?(truncate = 0) ?(framing = `Null) ?facility () =
+  let create c stack kv ?keyname ~hostname dst ?(port = 6514) ?(truncate = 0) ?(framing = `Null) ?facility () =
     let tcp = STACK.tcpv4 stack in
     let f = ref None in
     let dsts =
       Printf.sprintf "while writing to %s:%d" (Ipaddr.V4.to_string dst) port
     in
     let m = Lwt_mutex.create () in
-    X509.authenticator kv clock `CAs >>= fun authenticator ->
+    X509.authenticator kv `CAs >>= fun authenticator ->
     let certname = match keyname with None -> `Default | Some x -> `Name x in
     X509.certificate kv certname >>= fun priv ->
     let certificates = `Single priv in
@@ -64,7 +64,7 @@ module Tls (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
             facility
             hostname
             truncate
-            (fun () -> Ptime.v (CLOCK.now_d_ps clock))
+            (fun () -> Ptime.v (CLOCK.now_d_ps ()))
             send
             Syslog_message.encode)
     | Error e -> Error e

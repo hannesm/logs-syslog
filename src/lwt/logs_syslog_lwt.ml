@@ -111,7 +111,6 @@ let tcp_reporter ?hostname ip ?(port = 514) ?(truncate = 0) ?(framing = `Null) ?
    | None -> Lwt_unix.gethostname ()) >>= fun host ->
   conn_reporter Unix.PF_INET Unix.SOCK_STREAM sa truncate frame encode host facility
 
-
 let unix_reporter ?(socket = "/dev/log") ?truncate ?framing ?facility () =
   let truncate =
     match truncate with

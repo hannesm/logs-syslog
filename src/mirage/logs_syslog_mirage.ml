@@ -1,9 +1,9 @@
 open Lwt.Infix
 
-module Udp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack_lwt.V4) = struct
+module Udp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack.V4) = struct
   module UDP = STACK.UDPV4
 
-  let create c clock stack ~hostname dst ?(port = 514) ?(truncate = 65535) ?facility () =
+  let create c stack ~hostname dst ?(port = 514) ?(truncate = 65535) ?facility () =
     let dsts =
       Printf.sprintf "while writing to %s:%d" (Ipaddr.V4.to_string dst) port
     in
@@ -11,8 +11,7 @@ module Udp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
       facility
       hostname
       truncate
-      (* This API for PCLOCK is inconvenient (overengineered?) *)
-      (fun () -> Ptime.v (CLOCK.now_d_ps clock))
+      (fun () -> Ptime.v (CLOCK.now_d_ps ()))
       (fun s ->
          UDP.write ~dst ~dst_port:port (STACK.udpv4 stack) (Cstruct.of_string s) >>= function
          | Ok _ -> Lwt.return_unit
@@ -23,11 +22,11 @@ module Udp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
       Syslog_message.encode
 end
 
-module Tcp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack_lwt.V4) = struct
+module Tcp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack.V4) = struct
   open Logs_syslog
   module TCP = STACK.TCPV4
 
-  let create c clock stack ~hostname dst ?(port = 514) ?(truncate = 0) ?(framing = `Null) ?facility () =
+  let create c stack ~hostname dst ?(port = 514) ?(truncate = 0) ?(framing = `Null) ?facility () =
     let tcp = STACK.tcpv4 stack in
     let f = ref None in
     let dsts =
@@ -70,7 +69,7 @@ module Tcp (C : Mirage_console_lwt.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mir
             facility
             hostname
             truncate
-            (fun () -> Ptime.v (CLOCK.now_d_ps clock))
+            (fun () -> Ptime.v (CLOCK.now_d_ps ()))
             send
             Syslog_message.encode)
     | Error e -> Error e
