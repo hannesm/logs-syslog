@@ -1,3 +1,7 @@
+## v0.2.2 (2019-11-02)
+
+- adapt to mirage interfaces (mirage-kv, mirage-clock, mirage-console 3.0.0)
+
 ## v0.2.1 (2019-03-02)
 
 - lwt: don't report while reporting (otherwise out of memory).
