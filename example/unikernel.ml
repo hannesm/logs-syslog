@@ -1,11 +1,11 @@
 open Lwt.Infix
 
-module Main (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (T : Mirage_time.S) (S : Mirage_stack.V4) = struct
+module Main (CLOCK : Mirage_clock.PCLOCK) (T : Mirage_time.S) (S : Mirage_stack.V4) = struct
   module LU = Logs_syslog_mirage.Udp(C)(CLOCK)(S)
 
-  let start c _clock _time s =
+  let start _clock _time s =
     let ip = Ipaddr.V4.of_string_exn "10.0.0.1" in
-    let r = LU.create c s ~hostname:"MirageOS.example" ip () in
+    let r = LU.create s ~hostname:"MirageOS.example" ip () in
     Logs.set_reporter r ;
     Logs.set_level ~all:true (Some Logs.Debug) ;
     let rec go () =
