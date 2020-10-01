@@ -3,7 +3,7 @@
     Please read {!Logs_syslog} first. *)
 
 (** TLS reporter *)
-module Tls (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack.V4) (KV : Mirage_kv.RO) : sig
+module Tls (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack.V4V6) (KV : Mirage_kv.RO) : sig
 
   (** [create c tcp kv ~keyname ~hostname ip ~port ~truncate ~framing ()]
       is [Ok reporter] or [Error msg].  Key material (ca-roots.crt, certificate
@@ -17,7 +17,7 @@ module Tls (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_
       defaults to 6514, [framing] to appending a zero byte. [facility] is the
       default syslog facility (see {!Logs_syslog.message}).  *)
   val create : C.t -> STACK.t -> KV.t -> ?keyname:string -> hostname:string ->
-    STACK.IPV4.ipaddr -> ?port:int -> ?truncate:int -> ?framing:Logs_syslog.framing ->
+    STACK.IP.ipaddr -> ?port:int -> ?truncate:int -> ?framing:Logs_syslog.framing ->
     ?facility:Syslog_message.facility -> unit ->
     (Logs.reporter, string) result Lwt.t
 end
@@ -27,14 +27,14 @@ end
     To install a Mirage syslog reporter, sending via TLS to localhost, use the
     following snippet:
 {[
-module Main (C : Mirage_console.S) (S : Mirage_stack.V4) (CLOCK : Mirage_clock.PCLOCK) (KEYS : Mirage_kv.RO)
-  module TLS  = Tls_mirage.Make(S.TCPV4)
+module Main (C : Mirage_console.S) (S : Mirage_stack.V4V6) (CLOCK : Mirage_clock.PCLOCK) (KEYS : Mirage_kv.RO)
+  module TLS  = Tls_mirage.Make(S.TCP)
   module X509 = Tls_mirage.X509(KEYS)(CLOCK)
 
   module LT = Logs_syslog_mirage_tls.Tls(C)(CLOCK)(S)(KEYS)
 
   let start c s _ kv =
-    let ip = Ipaddr.V4.of_string_exn "127.0.0.1" in
+    let ip = Ipaddr.V4 (Ipaddr.V4.of_string_exn "127.0.0.1") in
     LT.create c s kv ~hostname ip () >>= function
       | Ok r -> Logs.set_reporter r ; Lwt.return_unit
       | Error e -> Lwt.fail_invalid_arg e

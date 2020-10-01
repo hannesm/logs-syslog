@@ -8,9 +8,9 @@ let packages = [
 
 let handler =
   foreign ~packages "Unikernel.Main"
-    (console @-> pclock @-> time @-> stackv4 @-> job)
+    (console @-> pclock @-> time @-> stackv4v6 @-> job)
 
-let stack = generic_stackv4 default_network
+let stack = generic_stackv4v6 default_network
 
 let () =
   register "syslog" [handler $ default_console $ default_posix_clock $ default_time $ stack]
