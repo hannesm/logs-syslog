@@ -17,7 +17,7 @@ depends: [
 
 depopts: [
   "lwt"
-  "x509" "tls" "cstruct"
+  "x509" "tls" "tls-mirage" "cstruct"
   "mirage-kv"
   "mirage-console" "mirage-clock" "mirage-stack" "ipaddr"
 ]
@@ -26,7 +26,7 @@ conflicts: [
   "mirage-kv" {< "3.0.0"}
   "mirage-console" {< "3.0.0"}
   "mirage-clock" {< "3.0.0"}
-  "mirage-stack" {< "2.0.0"}
+  "mirage-stack" {< "2.2.0"}
 ]
 
 build: [ "dune" "build" "-p" name "-j" jobs ]

@@ -1,11 +1,11 @@
 open Lwt.Infix
 
-module Udp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack.V4) = struct
-  module UDP = STACK.UDPV4
+module Udp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack.V4V6) = struct
+  module UDP = STACK.UDP
 
   let create c stack ~hostname dst ?(port = 514) ?(truncate = 65535) ?facility () =
     let dsts =
-      Printf.sprintf "while writing to %s:%d" (Ipaddr.V4.to_string dst) port
+      Printf.sprintf "while writing to %s:%d" (Ipaddr.to_string dst) port
     in
     Logs_syslog_lwt_common.syslog_report_common
       facility
@@ -13,7 +13,7 @@ module Udp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_
       truncate
       (fun () -> Ptime.v (CLOCK.now_d_ps ()))
       (fun s ->
-         UDP.write ~dst ~dst_port:port (STACK.udpv4 stack) (Cstruct.of_string s) >>= function
+         UDP.write ~dst ~dst_port:port (STACK.udp stack) (Cstruct.of_string s) >>= function
          | Ok _ -> Lwt.return_unit
          | Error e ->
            Format.(fprintf str_formatter "error %a %s, message: %s"
@@ -22,15 +22,15 @@ module Udp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_
       Syslog_message.encode
 end
 
-module Tcp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack.V4) = struct
+module Tcp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack.V4V6) = struct
   open Logs_syslog
-  module TCP = STACK.TCPV4
+  module TCP = STACK.TCP
 
   let create c stack ~hostname dst ?(port = 514) ?(truncate = 0) ?(framing = `Null) ?facility () =
-    let tcp = STACK.tcpv4 stack in
+    let tcp = STACK.tcp stack in
     let f = ref None in
     let dsts =
-      Printf.sprintf "while writing to %s:%d" (Ipaddr.V4.to_string dst) port
+      Printf.sprintf "while writing to %s:%d" (Ipaddr.to_string dst) port
     in
     let m = Lwt_mutex.create () in
     let connect () =
