@@ -1,3 +1,7 @@
+## v0.3.0 (2020-11-30)
+
+- support MirageOS dual IPv4 and IPv6 stack
+
 ## v0.2.2 (2019-11-02)
 
 - adapt to mirage interfaces (mirage-kv, mirage-clock, mirage-console 3.0.0)
