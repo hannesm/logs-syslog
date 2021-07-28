@@ -1,9 +1,9 @@
-module Tls (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack.V4V6) (KV : Mirage_kv.RO) = struct
+module Tls (C : Mirage_console.S) (T : Mirage_time.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack.V4V6) (KV : Mirage_kv.RO) = struct
   open Lwt.Infix
   open Logs_syslog
 
   module TCP = STACK.TCP
-  module TLS = Tls_mirage.Make(TCP)
+  module TLS = Tls_mirage.Make(TCP)(T)
   module X509 = Tls_mirage.X509(KV)(CLOCK)
 
   let create c stack kv ?keyname ~hostname dst ?(port = 6514) ?(truncate = 0) ?(framing = `Null) ?facility () =
