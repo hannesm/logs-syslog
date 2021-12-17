@@ -1,4 +1,4 @@
-module Tls (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack.V4V6) (KV : Mirage_kv.RO) = struct
+module Tls (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) (KV : Mirage_kv.RO) = struct
   open Lwt.Infix
   open Logs_syslog
 

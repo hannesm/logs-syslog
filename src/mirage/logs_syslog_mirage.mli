@@ -3,7 +3,7 @@
     Please read {!Logs_syslog} first. *)
 
 (** UDP syslog *)
-module Udp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack.V4V6) : sig
+module Udp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) : sig
   (** [create c udp ~hostname ip ~port ~truncate ()] is [reporter], which
       sends log messages to [ip, port] via UDP.  Upon failure, a message is
       emitted to the console [c].  Each message can be truncated: [truncate]
@@ -16,7 +16,7 @@ module Udp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_
 end
 
 (** TCP syslog *)
-module Tcp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Mirage_stack.V4V6) : sig
+module Tcp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) : sig
   (** [create c tcp ~hostname ip ~port ~truncate ~framing ()] is
       [Ok reporter] or [Error msg].  The [reporter] sends log messages to [ip, port]
       via TCP.  If the initial TCP connection to the [remote_ip] fails, an
@@ -40,7 +40,7 @@ end
     To install a Mirage syslog reporter, sending via UDP to localhost, use the
     following snippet:
 {[
-module Main (C : Mirage_console.S) (S : Mirage_stack.V4V6) (CLOCK : Mirage_clock.PCLOCK)
+module Main (C : Mirage_console.S) (S : Tcpip.Stack.V4V6) (CLOCK : Mirage_clock.PCLOCK)
   module LU = Logs_syslog_mirage.Udp(C)(CLOCK)(S)
 
   let start c s _ =
@@ -53,7 +53,7 @@ end
 
     The TCP transport is very similar:
 {[
-module Main (C : Mirage_console.S) (S : Mirage_stack.V4V6) (CLOCK : Mirage_clock.PCLOCK)
+module Main (C : Mirage_console.S) (S : Tcpip.Stack.V4V6) (CLOCK : Mirage_clock.PCLOCK)
   module LT = Logs_syslog_mirage.Tcp(C)(CLOCK)(S)
 
   let start c s _ =

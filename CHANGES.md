@@ -1,3 +1,7 @@
+## v0.3.1 (2021-12-17)
+
+- upgrade to tcpip 7.0.0 and deprecation of mirage-stack
+
 ## v0.3.0 (2020-11-30)
 
 - support MirageOS dual IPv4 and IPv6 stack
