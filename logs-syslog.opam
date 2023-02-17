@@ -17,7 +17,7 @@ depends: [
 
 depopts: [
   "lwt"
-  "x509" "tls" "tls-mirage" "cstruct"
+  "x509" "tls-lwt" "tls-mirage" "cstruct"
   "mirage-kv"
   "mirage-console" "mirage-clock" "ipaddr" "tcpip"
 ]
