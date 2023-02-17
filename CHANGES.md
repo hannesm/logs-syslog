@@ -1,3 +1,7 @@
+## v0.3.2 (2023-02-17)
+
+- update to tls 0.16.0 package split (tls.lwt -> tls-lwt)
+
 ## v0.3.1 (2021-12-17)
 
 - upgrade to tcpip 7.0.0 and deprecation of mirage-stack
