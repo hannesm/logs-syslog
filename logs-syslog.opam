@@ -19,12 +19,11 @@ depopts: [
   "lwt"
   "x509" "tls-lwt" "tls-mirage" "cstruct"
   "mirage-kv"
-  "mirage-console" "mirage-clock" "ipaddr" "tcpip"
+  "mirage-clock" "ipaddr" "tcpip"
 ]
 
 conflicts: [
   "mirage-kv" {< "3.0.0"}
-  "mirage-console" {< "3.0.0"}
   "mirage-clock" {< "3.0.0"}
   "tcpip" {< "7.0.0"}
 ]

@@ -1,3 +1,9 @@
+## v0.4.0 (2023-06-04)
+
+- mirage: remove usage of mirage-console, use Printf directly
+- remove using Astring (implicit dependency from syslog-message, which got
+  removed in syslog-message 1.2.0)
+
 ## v0.3.2 (2023-02-17)
 
 - update to tls 0.16.0 package split (tls.lwt -> tls-lwt)

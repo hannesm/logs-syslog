@@ -34,7 +34,7 @@ let message ?facility:(syslog_facility = Syslog_message.System_Daemons)
   let hdr = match header with None -> "" | Some x -> " " ^ x in
   let content = Printf.sprintf "%s%s %s" tags hdr message
   and severity = slevel level
-  and tag = Astring.String.take ~max:32 source
+  and tag = String.sub source 0 (min 32 (String.length source))
   in
   { Syslog_message.facility = syslog_facility ; severity ; timestamp ;
                    hostname ; tag ; content }

@@ -1,4 +1,4 @@
-module Tls (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) (KV : Mirage_kv.RO) = struct
+module Tls (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) (KV : Mirage_kv.RO) = struct
   open Lwt.Infix
   open Logs_syslog
 
@@ -6,7 +6,7 @@ module Tls (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.S
   module TLS = Tls_mirage.Make(TCP)
   module X509 = Tls_mirage.X509(KV)(CLOCK)
 
-  let create c stack kv ?keyname ~hostname dst ?(port = 6514) ?(truncate = 0) ?(framing = `Null) ?facility () =
+  let create stack kv ?keyname ~hostname dst ?(port = 6514) ?(truncate = 0) ?(framing = `Null) ?facility () =
     let tcp = STACK.tcp stack in
     let f = ref None in
     let dsts =
@@ -40,7 +40,8 @@ module Tls (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.S
       | Ok () -> Lwt_mutex.unlock m ; k msg
       | Error e ->
         Lwt_mutex.unlock m ;
-        C.log c (Printf.sprintf "error %s, message %s" e msg)
+        Printf.printf "error %s, message %s" e msg ;
+        Lwt.return_unit
     in
     let rec send omsg =
       match !f with
@@ -52,10 +53,8 @@ module Tls (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.S
         | Error e ->
           f := None ;
           TLS.pp_write_error Format.str_formatter e ;
-          let err = Printf.sprintf "error %s %s, reconnecting"
-              (Format.flush_str_formatter ()) dsts
-          in
-          C.log c err >>= fun () ->
+          Printf.printf "error %s %s, reconnecting"
+            (Format.flush_str_formatter ()) dsts;
           reconnect send omsg
     in
     connect () >|= function

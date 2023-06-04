@@ -1,9 +1,9 @@
 open Lwt.Infix
 
-module Udp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) = struct
+module Udp (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) = struct
   module UDP = STACK.UDP
 
-  let create c stack ~hostname dst ?(port = 514) ?(truncate = 65535) ?facility () =
+  let create stack ~hostname dst ?(port = 514) ?(truncate = 65535) ?facility () =
     let dsts =
       Printf.sprintf "while writing to %s:%d" (Ipaddr.to_string dst) port
     in
@@ -18,15 +18,16 @@ module Udp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.S
          | Error e ->
            Format.(fprintf str_formatter "error %a %s, message: %s"
                      UDP.pp_error e dsts s) ;
-           C.log c (Format.flush_str_formatter ()))
+           Printf.printf "%s" (Format.flush_str_formatter ());
+           Lwt.return_unit)
       Syslog_message.encode
 end
 
-module Tcp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) = struct
+module Tcp (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) = struct
   open Logs_syslog
   module TCP = STACK.TCP
 
-  let create c stack ~hostname dst ?(port = 514) ?(truncate = 0) ?(framing = `Null) ?facility () =
+  let create stack ~hostname dst ?(port = 514) ?(truncate = 0) ?(framing = `Null) ?facility () =
     let tcp = STACK.tcp stack in
     let f = ref None in
     let dsts =
@@ -48,7 +49,8 @@ module Tcp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.S
       | Ok () -> Lwt_mutex.unlock m ; k msg
       | Error e ->
         Lwt_mutex.unlock m ;
-        C.log c (Printf.sprintf "error %s, message %s" e msg)
+        Printf.printf "error %s, message %s" e msg ;
+        Lwt.return_unit
     in
     let rec send omsg =
       match !f with
@@ -60,7 +62,8 @@ module Tcp (C : Mirage_console.S) (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.S
         | Error e ->
           f := None ;
           TCP.pp_write_error Format.str_formatter e ;
-          C.log c (Format.flush_str_formatter () ^ " " ^ dsts ^ ", reconnecting") >>= fun () ->
+          Printf.printf "%s %s, reconnecting"
+            (Format.flush_str_formatter ()) dsts;
           reconnect send omsg
     in
     connect () >|= function
