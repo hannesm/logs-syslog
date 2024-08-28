@@ -1,3 +1,7 @@
+## v0.4.1 (2024-08-28)
+
+- update to TLS 1.0.0 API (#17)
+
 ## v0.4.0 (2023-06-04)
 
 - mirage: remove usage of mirage-console, use Printf directly
