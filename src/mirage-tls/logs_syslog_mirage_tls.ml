@@ -17,54 +17,60 @@ module Tls (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) (KV : Mirage
     let certname = match keyname with None -> `Default | Some x -> `Name x in
     X509.certificate kv certname >>= fun priv ->
     let certificates = `Single priv in
-    let conf = Tls.Config.client ~authenticator ~certificates () in
-    let connect () =
-      TCP.create_connection tcp (dst, port) >>= function
-      | Error e ->
-        TCP.pp_error Format.str_formatter e ;
-        let err = Printf.sprintf "error %s %s" (Format.flush_str_formatter ()) dsts in
-        Lwt.return (Error err)
-      | Ok flow ->
-        TLS.client_of_flow conf flow >|= function
-        | Ok tlsflow -> f := Some tlsflow ; Ok ()
+    match Tls.Config.client ~authenticator ~certificates () with
+    | Error `Msg msg -> Lwt.return (Error msg)
+    | Ok conf ->
+      let connect () =
+        TCP.create_connection tcp (dst, port) >>= function
         | Error e ->
-          TLS.pp_write_error Format.str_formatter e ;
-          let err = Printf.sprintf "error %s %s" (Format.flush_str_formatter ()) dsts in
-          Error err
-    in
-    let reconnect k msg =
-      Lwt_mutex.lock m >>= fun () ->
-      (match !f with
-       | None -> connect ()
-       | Some _ -> Lwt.return (Ok ())) >>= function
-      | Ok () -> Lwt_mutex.unlock m ; k msg
-      | Error e ->
-        Lwt_mutex.unlock m ;
-        Printf.printf "error %s, message %s" e msg ;
-        Lwt.return_unit
-    in
-    let rec send omsg =
-      match !f with
-      | None -> reconnect send omsg
-      | Some flow ->
-        let msg = Cstruct.of_string (frame_message omsg framing) in
-        TLS.write flow msg >>= function
-        | Ok () -> Lwt.return_unit
+          TCP.pp_error Format.str_formatter e ;
+          let err =
+            Printf.sprintf "error %s %s" (Format.flush_str_formatter ()) dsts
+          in
+          Lwt.return (Error err)
+        | Ok flow ->
+          TLS.client_of_flow conf flow >|= function
+          | Ok tlsflow -> f := Some tlsflow ; Ok ()
+          | Error e ->
+            TLS.pp_write_error Format.str_formatter e ;
+            let err =
+              Printf.sprintf "error %s %s" (Format.flush_str_formatter ()) dsts
+            in
+            Error err
+      in
+      let reconnect k msg =
+        Lwt_mutex.lock m >>= fun () ->
+        (match !f with
+         | None -> connect ()
+         | Some _ -> Lwt.return (Ok ())) >>= function
+        | Ok () -> Lwt_mutex.unlock m ; k msg
         | Error e ->
-          f := None ;
-          TLS.pp_write_error Format.str_formatter e ;
-          Printf.printf "error %s %s, reconnecting"
-            (Format.flush_str_formatter ()) dsts;
-          reconnect send omsg
-    in
-    connect () >|= function
-    | Ok () ->
-      Ok (Logs_syslog_mirage__Logs_syslog_lwt_common.syslog_report_common
-            facility
-            hostname
-            truncate
-            (fun () -> Ptime.v (CLOCK.now_d_ps ()))
-            send
-            Syslog_message.encode)
-    | Error e -> Error e
+          Lwt_mutex.unlock m ;
+          Printf.printf "error %s, message %s" e msg ;
+          Lwt.return_unit
+      in
+      let rec send omsg =
+        match !f with
+        | None -> reconnect send omsg
+        | Some flow ->
+          let msg = Cstruct.of_string (frame_message omsg framing) in
+          TLS.write flow msg >>= function
+          | Ok () -> Lwt.return_unit
+          | Error e ->
+            f := None ;
+            TLS.pp_write_error Format.str_formatter e ;
+            Printf.printf "error %s %s, reconnecting"
+              (Format.flush_str_formatter ()) dsts;
+            reconnect send omsg
+      in
+      connect () >|= function
+      | Ok () ->
+        Ok (Logs_syslog_mirage__Logs_syslog_lwt_common.syslog_report_common
+              facility
+              hostname
+              truncate
+              (fun () -> Ptime.v (CLOCK.now_d_ps ()))
+              send
+              Syslog_message.encode)
+      | Error e -> Error e
 end
