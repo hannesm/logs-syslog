@@ -45,3 +45,4 @@ infrastructure for OCaml, with the
 encoding and decoding of syslog messages ([RFC
 3164](https://tools.ietf.org/html/rfc3164)).
 """
+x-maintenance-intent: [ "(latest)" ]
