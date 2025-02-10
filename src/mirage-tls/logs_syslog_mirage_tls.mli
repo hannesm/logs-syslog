@@ -3,7 +3,7 @@
     Please read {!Logs_syslog} first. *)
 
 (** TLS reporter *)
-module Tls (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) (KV : Mirage_kv.RO) : sig
+module Tls (STACK : Tcpip.Stack.V4V6) (KV : Mirage_kv.RO) : sig
 
   (** [create tcp kv ~keyname ~hostname ip ~port ~truncate ~framing ()]
       is [Ok reporter] or [Error msg].  Key material (ca-roots.crt, certificate
@@ -27,11 +27,11 @@ end
     To install a Mirage syslog reporter, sending via TLS to localhost, use the
     following snippet:
 {[
-module Main (S : Tcpip.Stack.V4V6) (CLOCK : Mirage_clock.PCLOCK) (KEYS : Mirage_kv.RO)
+module Main (S : Tcpip.Stack.V4V6) (KEYS : Mirage_kv.RO)
   module TLS  = Tls_mirage.Make(S.TCP)
-  module X509 = Tls_mirage.X509(KEYS)(CLOCK)
+  module X509 = Tls_mirage.X509(KEYS)
 
-  module LT = Logs_syslog_mirage_tls.Tls(CLOCK)(S)(KEYS)
+  module LT = Logs_syslog_mirage_tls.Tls(S)(KEYS)
 
   let start s _ kv =
     let ip = Ipaddr.V4 (Ipaddr.V4.of_string_exn "127.0.0.1") in
