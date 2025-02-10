@@ -1,6 +1,6 @@
 open Lwt.Infix
 
-module Udp (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) = struct
+module Udp (STACK : Tcpip.Stack.V4V6) = struct
   module UDP = STACK.UDP
 
   let create stack ~hostname dst ?(port = 514) ?(truncate = 65535) ?facility () =
@@ -11,7 +11,7 @@ module Udp (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) = struct
       facility
       hostname
       truncate
-      (fun () -> Ptime.v (CLOCK.now_d_ps ()))
+      Mirage_ptime.now
       (fun s ->
          UDP.write ~dst ~dst_port:port (STACK.udp stack) (Cstruct.of_string s) >>= function
          | Ok _ -> Lwt.return_unit
@@ -23,7 +23,7 @@ module Udp (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) = struct
       Syslog_message.encode
 end
 
-module Tcp (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) = struct
+module Tcp (STACK : Tcpip.Stack.V4V6) = struct
   open Logs_syslog
   module TCP = STACK.TCP
 
@@ -72,7 +72,7 @@ module Tcp (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) = struct
             facility
             hostname
             truncate
-            (fun () -> Ptime.v (CLOCK.now_d_ps ()))
+            Mirage_ptime.now
             send
             Syslog_message.encode)
     | Error e -> Error e

@@ -19,15 +19,14 @@ depopts: [
   "lwt"
   "x509" "tls-lwt" "tls-mirage" "cstruct"
   "mirage-kv"
-  "mirage-clock" "ipaddr" "tcpip"
+  "mirage-ptime" "ipaddr" "tcpip"
 ]
 
 conflicts: [
   "mirage-kv" {< "3.0.0"}
-  "mirage-clock" {< "3.0.0"}
   "tcpip" {< "7.0.0"}
-  "tls-lwt" {< "1.0.0"}
-  "tls-mirage" {< "1.0.0"}
+  "tls-lwt" {< "2.0.0"}
+  "tls-mirage" {< "2.0.0"}
 ]
 
 build: [

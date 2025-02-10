@@ -3,7 +3,7 @@
     Please read {!Logs_syslog} first. *)
 
 (** UDP syslog *)
-module Udp (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) : sig
+module Udp (STACK : Tcpip.Stack.V4V6) : sig
   (** [create udp ~hostname ip ~port ~truncate ()] is [reporter], which
       sends log messages to [ip, port] via UDP.  Upon failure, a message is
       emitted via [printf].  Each message can be truncated: [truncate]
@@ -16,7 +16,7 @@ module Udp (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) : sig
 end
 
 (** TCP syslog *)
-module Tcp (CLOCK : Mirage_clock.PCLOCK) (STACK : Tcpip.Stack.V4V6) : sig
+module Tcp (STACK : Tcpip.Stack.V4V6) : sig
   (** [create tcp ~hostname ip ~port ~truncate ~framing ()] is
       [Ok reporter] or [Error msg].  The [reporter] sends log messages to [ip, port]
       via TCP.  If the initial TCP connection to the [remote_ip] fails, an
@@ -40,8 +40,8 @@ end
     To install a Mirage syslog reporter, sending via UDP to localhost, use the
     following snippet:
 {[
-module Main (S : Tcpip.Stack.V4V6) (CLOCK : Mirage_clock.PCLOCK)
-  module LU = Logs_syslog_mirage.Udp(CLOCK)(S)
+module Main (S : Tcpip.Stack.V4V6) = struct
+  module LU = Logs_syslog_mirage.Udp(S)
 
   let start s _ =
     let ip = Ipaddr.V4 (Ipaddr.V4.of_string_exn "127.0.0.1") in
@@ -53,8 +53,8 @@ end
 
     The TCP transport is very similar:
 {[
-module Main (S : Tcpip.Stack.V4V6) (CLOCK : Mirage_clock.PCLOCK)
-  module LT = Logs_syslog_mirage.Tcp(CLOCK)(S)
+module Main (S : Tcpip.Stack.V4V6) = struct
+  module LT = Logs_syslog_mirage.Tcp(S)
 
   let start s _ =
     let ip = Ipaddr.V4 (Ipaddr.V4.of_string_exn "127.0.0.1") in
