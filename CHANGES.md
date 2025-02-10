@@ -1,3 +1,7 @@
+## v0.5.0 (2025-02-10)
+
+- defunctorise the mirage layer (#18)
+
 ## v0.4.1 (2024-08-28)
 
 - update to TLS 1.0.0 API (#17)
